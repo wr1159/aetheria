@@ -11,14 +11,9 @@ const config: Phaser.Types.Core.GameConfig = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     physics: {
-        default: 'arcade',
-        arcade: {
-            gravity: { y: 200 }
-        }
+        default: "arcade",
     },
-    scene: [
-        HelloScene,
-    ]
+    scene: [HelloScene],
 };
 
 export default new Phaser.Game(config);
