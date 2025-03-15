@@ -118,7 +118,9 @@ export default class HelloScene extends Phaser.Scene {
         try {
             const resp = await fetch('https://api.sampleapis.com/switch/games');
             const json = await resp.json();
-            this.displayData(json[0]);
+            // get randomIndex
+            const randomIndex = Math.floor(Math.random() * json.length);
+            this.displayData(json[randomIndex]);
         } catch (err) {
             this.dataText.setText("error");
         }
