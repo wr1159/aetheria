@@ -2,6 +2,7 @@ export default class HelloScene extends Phaser.Scene {
     private player!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     private obstacles!: Phaser.Physics.Arcade.StaticGroup;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
+    private dataText!: Phaser.GameObjects.Text; // To display fetched data
 
     constructor() {
         super("hello");
@@ -48,6 +49,28 @@ export default class HelloScene extends Phaser.Scene {
 
         // Input handling
         this.cursors = this.input.keyboard?.createCursorKeys();
+
+        // Create a button
+        const button = this.add.text(100, 100, 'Fetch Data', { color: '#ff0' })
+            .setInteractive()
+            .on('pointerdown', () => this.fetchData()); // Call fetchData on click
+
+        // Create a text object to display the data
+        this.dataText = this.add.text(100, 150, 'test', { color: '#fff', wordWrap: { width: 400 } });
+    }
+
+    private async fetchData() {
+        try {
+            const resp = await fetch('https://api.sampleapis.com/switch/games');
+            const json = await resp.json();
+            this.displayData(json[0]);
+        } catch (err) {
+            this.dataText.setText("error");
+        }
+    }
+
+    private displayData(data: any) {
+        this.dataText.setText(data.name);
     }
 
     update() {
