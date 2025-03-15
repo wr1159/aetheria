@@ -48,8 +48,8 @@ export default class HelloScene extends Phaser.Scene {
         const centerY = height * 0.5;
 
         this.add.image(400, 300, "sky");
+        this.add.image(centerX, centerY, "vite-phaser-logo");
         const particles = this.add.particles(centerX, centerY, "red");
-        const logo = this.add.image(centerX, centerY, "vite-phaser-logo");
 
         particles.emitParticle(2, 100, 200);
 
@@ -371,7 +371,7 @@ export default class HelloScene extends Phaser.Scene {
             const yPos = -100 + (index * 60);
             const isNpc = message.sender === "NPC";
             const xPos = isNpc ? -width * 0.3 : width * 0.1;
-            const align = isNpc ? 'left' : 'right';
+            // const align = isNpc ? 'left' : 'right';
             const bgColor = isNpc ? 0x4a6fa5 : 0x6a8759;
 
             // Create message background and add directly to the container
