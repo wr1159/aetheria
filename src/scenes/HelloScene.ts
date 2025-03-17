@@ -7,17 +7,21 @@ export default class HelloScene extends Phaser.Scene {
     private chatMessages: string[] = []; // To store chat messages
     private isInputMode: boolean = false; // To track if the user is in input mode
     private chatInputText: string = ''; // To hold the current chat input
-    // TODO: Show current input 
+    
+    // Medieval village elements
+    private buildings: Phaser.GameObjects.Image[] = [];
+    private trees: Phaser.GameObjects.Image[] = [];
+    private villageBackground!: Phaser.GameObjects.TileSprite;
     
     // NPC related properties
-    private npc!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
-    private npcInteractionZone!: Phaser.GameObjects.Zone;
-    private isNearNpc: boolean = false;
+    private wizard!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
+    private wizardInteractionZone!: Phaser.GameObjects.Zone;
+    private isNearWizard: boolean = false;
     private isChatDialogOpen: boolean = false;
     private chatDialog!: Phaser.GameObjects.Container;
     private dialogInput!: Phaser.GameObjects.DOMElement;
     private dialogInputText: string = '';
-    private npcMessages: {sender: string, text: string}[] = [];
+    private wizardMessages: {sender: string, text: string}[] = [];
     private interactKey!: Phaser.Input.Keyboard.Key;
 
     constructor() {
@@ -25,21 +29,15 @@ export default class HelloScene extends Phaser.Scene {
     }
 
     preload() {
-        // load static from our public dir
-        this.load.image("vite-phaser-logo", "assets/images/vite-phaser.png");
-
-        // load static assets from url
-        this.load.image(
-            "sky",
-            "https://labs.phaser.io/assets/skies/space3.png"
-        );
-        this.load.image(
-            "red",
-            "https://labs.phaser.io/assets/particles/red.png"
-        );
-        this.load.image("player", "assets/images/player.png"); // Load player sprite
-        this.load.image("obstacle", "assets/images/obstacle.png"); // Load obstacle sprite
-        this.load.image("npc", "assets/images/npc.png"); // Load NPC sprite
+        // Load medieval assets
+        // this.load.image("village-bg", "assets/images/village-bg.png");
+        this.load.image("villager", "assets/images/villager.png");
+        this.load.image("wizard", "assets/images/wizard.png");
+        this.load.image("house1", "assets/images/house1.png");
+        this.load.image("house2", "assets/images/house2.png");
+        this.load.image("tree", "assets/images/tree.png");
+        this.load.image("stone", "assets/images/stone.png");
+        this.load.image("scroll", "assets/images/scroll.png");
     }
 
     create() {
@@ -47,37 +45,53 @@ export default class HelloScene extends Phaser.Scene {
         const centerX = width * 0.5;
         const centerY = height * 0.5;
 
-        this.add.image(400, 300, "sky");
-        this.add.image(centerX, centerY, "vite-phaser-logo");
-        const particles = this.add.particles(centerX, centerY, "red");
+        // Create medieval village background
+        this.add.image(centerX, centerY, "village-bg").setScale(1.2);
+        
+        // Add buildings to the village
+        this.createVillage();
 
-        particles.emitParticle(2, 100, 200);
-
-        this.player = this.physics.add.sprite(centerX, centerY, "player");
+        // Create player (villager)
+        this.player = this.physics.add.sprite(centerX, centerY + 100, "villager");
         this.player.setCollideWorldBounds(true);
+        this.player.setScale(0.8);
 
-        // Create NPC
-        this.npc = this.physics.add.sprite(centerX + 100, centerY - 50, "npc");
-        this.npc.setImmovable(true);
+        // Create wizard NPC
+        this.wizard = this.physics.add.sprite(centerX - 150, centerY - 50, "wizard");
+        this.wizard.setImmovable(true);
+        this.wizard.setScale(0.9);
         
-        // Create NPC interaction zone (larger than the NPC sprite)
-        this.npcInteractionZone = this.add.zone(this.npc.x, this.npc.y, 100, 100);
-        this.physics.world.enable(this.npcInteractionZone);
+        // Create wizard interaction zone
+        this.wizardInteractionZone = this.add.zone(this.wizard.x, this.wizard.y, 100, 100);
+        this.physics.world.enable(this.wizardInteractionZone);
         
-        // Create obstacles
+        // Create obstacles (stones)
         this.obstacles = this.physics.add.staticGroup();
-        this.obstacles.create(300, 300, "obstacle");
-        this.obstacles.create(500, 300, "obstacle");
+        this.obstacles.create(centerX + 200, centerY + 100, "stone").setScale(0.7);
+        this.obstacles.create(centerX - 200, centerY + 150, "stone").setScale(0.6);
+        this.obstacles.create(centerX + 100, centerY - 150, "stone").setScale(0.8);
 
         // Add collision detection
         this.physics.add.collider(this.player, this.obstacles);
-        this.physics.add.collider(this.player, this.npc);
+        this.physics.add.collider(this.player, this.wizard);
         
-        // Add overlap detection for NPC interaction zone
+        // Add buildings as obstacles
+        this.buildings.forEach(building => {
+            this.physics.add.existing(building, true);
+            this.physics.add.collider(this.player, building);
+        });
+        
+        // Add trees as obstacles
+        this.trees.forEach(tree => {
+            this.physics.add.existing(tree, true);
+            this.physics.add.collider(this.player, tree);
+        });
+        
+        // Add overlap detection for wizard interaction zone
         this.physics.add.overlap(
             this.player,
-            this.npcInteractionZone,
-            this.handleNpcProximity,
+            this.wizardInteractionZone,
+            this.handleWizardProximity,
             undefined,
             this
         );
@@ -88,93 +102,48 @@ export default class HelloScene extends Phaser.Scene {
             this.interactKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
         }
 
-        // Create a chat input box
-        this.chatInput = this.add.dom(centerX, centerY).createFromHTML('<input type="text" placeholder="Type your message..." style="width: 200px;"/>');
-        this.chatInput.addListener('keydown');
-
-        // Listen for key events
-        this.input.keyboard?.on('keydown', (event: KeyboardEvent) => {
-            if (this.isInputMode) {
-                if (event.key === 'Enter') {
-                    this.sendMessage(this.chatInputText);
-                    this.chatInputText = ''; // Clear input after sending
-                    this.isInputMode = false; // Exit input mode
-                } else if (event.key === 'Backspace') {
-                    this.chatInputText = this.chatInputText.slice(0, -1); // Remove last character
-                } else if (event.key.length === 1) {
-                    this.chatInputText += event.key; // Add character to input
-                }
-            } else if (event.key === 'Enter') {
-                this.isInputMode = true; // Enter input mode
-            }
-        });
-
-        // Create a button
-        const button = this.add.text(100, 100, 'Fetch Data', { color: '#ff0' })
-            .setInteractive()
-            .on('pointerdown', () => this.fetchData()) // Call fetchData on click
-            .on('pointerover', () => button.setStyle({ fill: '#0f0' })) // Change color on hover
-            .on('pointerout', () => button.setStyle({ fill: '#ff0' })); // Reset color on hover out
-
-        // Change cursor to pointer
-        button.setInteractive({ useHandCursor: true });
-
-        // Create a text object to display the data
-        this.dataText = this.add.text(100, 150, 'test', { color: '#fff', wordWrap: { width: 400 } });
-
         // Create chat dialog (initially hidden)
         this.createChatDialog();
     }
 
-    private sendMessage(message: string) {
-        if (this.chatMessages.length > 5) {
-            this.chatMessages = this.chatMessages.slice(1);
-            console.log("slice", this.chatMessages);
-        }
-        this.chatMessages.push(message);
-        console.log("afterpush", this.chatMessages);
-        this.displayChatMessages();
-    }
-
-    private displayChatMessages() {
-        // Clear previous chat display
-        this.children.list.forEach(child => {
-            if (child.name === 'chatDisplay') {
-                child.destroy();
-            }
-        });
-
-        // Create a new chat display
-        const chatDisplay = this.add.text(10, this.scale.height - 100, this.chatMessages.join('\n'), { color: '#fff', wordWrap: { width: 200 } });
-        chatDisplay.setOrigin(0); // Align to the bottom left
-        chatDisplay.name = 'chatDisplay'; // Set name for easy access
-    }
-
-    private async fetchData() {
-        try {
-            const resp = await fetch('https://api.sampleapis.com/switch/games');
-            const json = await resp.json();
-            // get randomIndex
-            const randomIndex = Math.floor(Math.random() * json.length);
-            this.displayData(json[randomIndex]);
-        } catch (err) {
-            this.dataText.setText("error");
+    private createVillage() {
+        const { width, height } = this.scale;
+        
+        // Add houses
+        const house1 = this.add.image(width * 0.2, height * 0.3, "house1");
+        house1.setScale(1.2);
+        this.buildings.push(house1);
+        
+        const house2 = this.add.image(width * 0.8, height * 0.4, "house2");
+        house2.setScale(1.1);
+        this.buildings.push(house2);
+        
+        const house3 = this.add.image(width * 0.6, height * 0.2, "house1");
+        house3.setScale(1.0);
+        house3.flipX = true;
+        this.buildings.push(house3);
+        
+        // Add trees
+        for (let i = 0; i < 5; i++) {
+            const tree = this.add.image(
+                Phaser.Math.Between(50, width - 50),
+                Phaser.Math.Between(50, height - 50),
+                "tree"
+            );
+            tree.setScale(0.7);
+            this.trees.push(tree);
         }
     }
 
-    private displayData(data: any) {
-        this.dataText.setText(data.name);
-    }
-
-    private handleNpcProximity() {
-        if (!this.isNearNpc) {
-            this.isNearNpc = true;
+    private handleWizardProximity() {
+        if (!this.isNearWizard) {
+            this.isNearWizard = true;
             // Show interaction prompt
             const promptText = this.add.text(
-                this.npc.x,
-                this.npc.y - 50,
-                "Press E to talk",
-                { fontSize: '16px', color: '#ffffff' }
+                this.wizard.x,
+                this.wizard.y - 70,
+                "Press E to speak with the Wizard",
+                { fontSize: '16px', color: '#ffffff', stroke: '#000000', strokeThickness: 3 }
             );
             promptText.setOrigin(0.5);
             promptText.setName('interactionPrompt');
@@ -189,25 +158,27 @@ export default class HelloScene extends Phaser.Scene {
         this.chatDialog.setVisible(false);
         this.chatDialog.setExclusive(true);
         
-        // Add background
-        const background = this.add.rectangle(0, 0, width * 0.8, height * 0.7, 0x000000, 0.8);
+        // Add scroll background
+        const background = this.add.image(0, 0, "scroll");
+        background.setScale(1.5);
         background.setOrigin(0.5);
         this.chatDialog.add(background);
         
         // Add title
-        const title = this.add.text(0, -background.height / 2 + 20, "Chat with NPC", {
+        const title = this.add.text(0, -background.displayHeight / 2 + 50, "Conversation with the Wizard", {
             fontSize: '24px',
-            color: '#ffffff'
+            color: '#4a2511',
+            fontStyle: 'bold'
         });
         title.setOrigin(0.5, 0);
         this.chatDialog.add(title);
         
         // Add close button
         const closeButton = this.add.text(
-            background.width / 2 - 30,
-            -background.height / 2 + 20,
+            background.displayWidth / 2 - 60,
+            -background.displayHeight / 2 + 40,
             "X",
-            { fontSize: '24px', color: '#ffffff' }
+            { fontSize: '24px', color: '#4a2511', fontStyle: 'bold' }
         );
         closeButton.setOrigin(0.5);
         closeButton.setInteractive({ useHandCursor: true });
@@ -218,10 +189,10 @@ export default class HelloScene extends Phaser.Scene {
         const messagesArea = this.add.rectangle(
             0,
             0,
-            background.width - 40,
-            background.height - 120,
-            0x333333,
-            0.5
+            background.displayWidth - 100,
+            background.displayHeight - 200,
+            0xf8ecc9,
+            0.1
         );
         messagesArea.setOrigin(0.5);
         this.chatDialog.add(messagesArea);
@@ -229,11 +200,11 @@ export default class HelloScene extends Phaser.Scene {
         // Add input area
         const inputArea = this.add.rectangle(
             0,
-            background.height / 2 - 40,
-            background.width - 40,
+            background.displayHeight / 2 - 70,
+            background.displayWidth - 100,
             60,
-            0x555555,
-            0.8
+            0xf8ecc9,
+            0.3
         );
         inputArea.setOrigin(0.5);
         this.chatDialog.add(inputArea);
@@ -241,9 +212,9 @@ export default class HelloScene extends Phaser.Scene {
         // Add input field
         this.dialogInput = this.add.dom(
             0,
-            background.height / 2 - 40,
+            background.displayHeight / 2 - 70,
             'input',
-            'width: 80%; height: 40px; padding: 5px; font-size: 16px;'
+            'width: 80%; height: 40px; padding: 5px; font-size: 16px; border: 2px solid #4a2511; background-color: #f8ecc9;'
         );
         this.dialogInput.setOrigin(0.5);
         this.chatDialog.add(this.dialogInput);
@@ -251,17 +222,17 @@ export default class HelloScene extends Phaser.Scene {
         // Add send button
         const sendButton = this.add.text(
             inputArea.width / 2 - 50,
-            background.height / 2 - 40,
+            background.displayHeight / 2 - 70,
             "Send",
-            { fontSize: '18px', color: '#ffffff', backgroundColor: '#4a4a4a', padding: { x: 10, y: 5 } }
+            { fontSize: '18px', color: '#4a2511', backgroundColor: '#d9c27e', padding: { x: 10, y: 5 } }
         );
         sendButton.setOrigin(0.5);
         sendButton.setInteractive({ useHandCursor: true });
-        sendButton.on('pointerdown', () => this.sendNpcMessage());
+        sendButton.on('pointerdown', () => this.sendWizardMessage());
         this.chatDialog.add(sendButton);
         
         // Add initial messages
-        this.addNpcMessage("Hello there! How can I help you today?", "NPC");
+        this.addWizardMessage("Greetings, young villager! I am the wizard of this humble village. What knowledge do you seek?", "Wizard");
     }
 
     private openChatDialog() {
@@ -302,7 +273,7 @@ export default class HelloScene extends Phaser.Scene {
         if (!this.isChatDialogOpen) return;
         
         if (event.key === 'Enter') {
-            this.sendNpcMessage();
+            this.sendWizardMessage();
         } else if (event.key === 'Escape') {
             this.closeChatDialog();
         } else if (event.key === 'Backspace') {
@@ -318,14 +289,14 @@ export default class HelloScene extends Phaser.Scene {
         }
     }
     
-    private sendNpcMessage() {
+    private sendWizardMessage() {
         const inputElement = this.dialogInput.getChildByName('input') as HTMLInputElement;
         const message = inputElement ? inputElement.value : this.dialogInputText;
         
         if (message.trim() === '') return;
         
         // Add player message
-        this.addNpcMessage(message, "Player");
+        this.addWizardMessage(message, "Villager");
         
         // Clear input
         this.dialogInputText = '';
@@ -334,22 +305,24 @@ export default class HelloScene extends Phaser.Scene {
             inputElement.focus();
         }
         
-        // Simulate NPC response (replace with API call later)
+        // Simulate wizard response (replace with API call later)
         setTimeout(() => {
             const responses = [
-                "That's interesting! Tell me more.",
-                "I understand. How can I assist you further?",
-                "I'm processing that information. Give me a moment.",
-                "That's a good point. Have you considered an alternative approach?",
-                "I'm here to help with any questions you might have."
+                "Ah, the curiosity of youth! Let me share some ancient wisdom with you...",
+                "By the beard of Merlin! That's a question I haven't heard in centuries.",
+                "The arcane arts are not to be taken lightly, young one. But I shall enlighten you.",
+                "In my many years of studying the mystical forces, I've learned that the answer you seek lies within.",
+                "The stars foretold your coming. Your question is most intriguing...",
+                "Hmm, let me consult my crystal ball for the answer to that question.",
+                "The ancient tomes speak of such matters. Allow me to recall what they say..."
             ];
             const randomResponse = responses[Math.floor(Math.random() * responses.length)];
-            this.addNpcMessage(randomResponse, "NPC");
+            this.addWizardMessage(randomResponse, "Wizard");
         }, 1000);
     }
     
-    private addNpcMessage(text: string, sender: string) {
-        this.npcMessages.push({ sender, text });
+    private addWizardMessage(text: string, sender: string) {
+        this.wizardMessages.push({ sender, text });
         this.updateChatMessages();
     }
     
@@ -364,15 +337,15 @@ export default class HelloScene extends Phaser.Scene {
 
         const { width } = this.scale;
         const maxMessages = 4; // Maximum number of messages to display
-        const startIndex = Math.max(0, this.npcMessages.length - maxMessages);
-        const visibleMessages = this.npcMessages.slice(startIndex);
+        const startIndex = Math.max(0, this.wizardMessages.length - maxMessages);
+        const visibleMessages = this.wizardMessages.slice(startIndex);
 
         visibleMessages.forEach((message, index) => {
             const yPos = -100 + (index * 60);
-            const isNpc = message.sender === "NPC";
-            const xPos = isNpc ? -width * 0.3 : width * 0.1;
-            // const align = isNpc ? 'left' : 'right';
-            const bgColor = isNpc ? 0x4a6fa5 : 0x6a8759;
+            const isWizard = message.sender === "Wizard";
+            const xPos = isWizard ? -width * 0.3 : width * 0.3;
+            const bgColor = isWizard ? 0x5d4037 : 0x795548;
+            const textColor = isWizard ? '#e6ccff' : '#ffffff';
 
             // Create message background and add directly to the container
             const msgBg = this.add.rectangle(
@@ -383,18 +356,23 @@ export default class HelloScene extends Phaser.Scene {
                 bgColor,
                 0.8
             );
-            msgBg.setOrigin(isNpc ? 0 : 1, 0.5);
+            msgBg.setOrigin(isWizard ? 0 : 1, 0.5);
             msgBg.name = `message_bg_${index}`;
             this.chatDialog.add(msgBg);
 
             // Create message text and add directly to the container
             const msgText = this.add.text(
-                xPos + (isNpc ? 10 : -10),
+                xPos + (isWizard ? 10 : -10),
                 yPos,
                 message.text,
-                { fontSize: '16px', color: '#ffffff', wordWrap: { width: width * 0.33 } }
+                { 
+                    fontSize: '16px', 
+                    color: textColor, 
+                    wordWrap: { width: width * 0.33 },
+                    fontStyle: isWizard ? 'italic' : 'normal'
+                }
             );
-            msgText.setOrigin(isNpc ? 0 : 1, 0.5);
+            msgText.setOrigin(isWizard ? 0 : 1, 0.5);
             msgText.name = `message_text_${index}`;
             this.chatDialog.add(msgText);
         });
@@ -404,20 +382,20 @@ export default class HelloScene extends Phaser.Scene {
         const speed = 160;
         this.player.setVelocity(0);
 
-        // Check for NPC interaction
-        if (this.isNearNpc && this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey) && !this.isChatDialogOpen) {
+        // Check for wizard interaction
+        if (this.isNearWizard && this.interactKey && Phaser.Input.Keyboard.JustDown(this.interactKey) && !this.isChatDialogOpen) {
             this.openChatDialog();
         }
 
-        // Update NPC interaction state
-        if (this.isNearNpc) {
+        // Update wizard interaction state
+        if (this.isNearWizard) {
             const distance = Phaser.Math.Distance.Between(
                 this.player.x, this.player.y,
-                this.npc.x, this.npc.y
+                this.wizard.x, this.wizard.y
             );
             
             if (distance > 100) {
-                this.isNearNpc = false;
+                this.isNearWizard = false;
                 const prompt = this.children.getByName('interactionPrompt');
                 if (prompt) {
                     prompt.destroy();
@@ -429,8 +407,10 @@ export default class HelloScene extends Phaser.Scene {
             if (this.cursors) {
                 if (this.cursors.left.isDown) {
                     this.player.setVelocityX(-speed);
+                    this.player.flipX = true;
                 } else if (this.cursors.right.isDown) {
                     this.player.setVelocityX(speed);
+                    this.player.flipX = false;
                 }
 
                 if (this.cursors.up.isDown) {
@@ -442,3 +422,4 @@ export default class HelloScene extends Phaser.Scene {
         }
     }
 }
+
