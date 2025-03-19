@@ -2,6 +2,20 @@
 
 Vite + Phaser + Typescript starter template.
 
+## Features
+- Minting NFT avatar based on own wallet tx history.
+- AI NPC behaviour based on wallet history.
+- AI NPC and Player will have the same NFT avatar. Player can choose to be using the NFT avatar or amongst default avatars
+- Talk to pre-defined NPC and other player NPCs.
+- Pre defined NPCs will also be AI.
+- Create maps for different zones based on random top mcap coins ie: "ETH LAND", "SOL LAND".
+
+Predefined NPCs:
+
+- Wizard -> General crypto enquiries.
+- Jailor / Sheriff -> Explore transactions of criminals. Show transactions as a graph (ZachXBT)
+- Witch / Oracle* -> RNG generates random <1m mcap memecoin day (not the same for all players true random).
+
 ## Preview
 
 ![preview.jpg](preview.jpg)
