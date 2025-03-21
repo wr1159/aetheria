@@ -3,8 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
-import time
-import torch
+import time, torch, os, random
 
 app = FastAPI()
 origins = ["*"]
@@ -23,29 +22,34 @@ FLOCK_MODEL_NAME = "flock-io/Flock_Web3_Agent_Model"  # Specialized Web3 model
 
 # Choose which model to use (TINY_MODEL_NAME is active, FLOCK_MODEL_NAME is commented out)
 ACTIVE_MODEL = FLOCK_MODEL_NAME  # Uncomment to use Flock Web3 Agent Model
-IS_USE_MODEL = False
+IS_USE_MODEL = os.environ.get("USE_MODEL") == "True"
+print ("====================")
+print ("Model Configuration")
+print(f"Model enabled: {IS_USE_MODEL}")
+print(f"Active model: {ACTIVE_MODEL}")
+print ("====================")
+
 
 # Load model and tokenizer
 try:
-    if not IS_USE_MODEL:
-        raise RuntimeError("Model is disabled")
-    start = time.time()
-    model = AutoModelForCausalLM.from_pretrained(
-        ACTIVE_MODEL,
-        device_map="auto",
-        # Force full model load (disable disk offloading)
-        offload_folder=None,
-        offload_state_dict=False,
-        
-        # Reduce memory usage
-        # low_cpu_mem_usage=True, # Increases time by 50%
-        torch_dtype=torch.float16,  # FP16 even on CPU
-        
-        # For Flock model specific settings (when using it)
-        # trust_remote_code=True,  # Uncomment if needed for Flock model
-    )
-    print(f"Model {ACTIVE_MODEL} loaded in {time.time()-start:.2f}s")
-    tokenizer = AutoTokenizer.from_pretrained(ACTIVE_MODEL)
+    if IS_USE_MODEL:
+        start = time.time()
+        model = AutoModelForCausalLM.from_pretrained(
+            ACTIVE_MODEL,
+            device_map="auto",
+            # Force full model load (disable disk offloading)
+            offload_folder=None,
+            offload_state_dict=False,
+            
+            # Reduce memory usage
+            # low_cpu_mem_usage=True, # Increases time by 50%
+            torch_dtype=torch.float16,  # FP16 even on CPU
+            
+            # For Flock model specific settings (when using it)
+            # trust_remote_code=True,  # Uncomment if needed for Flock model
+        )
+        print(f"Model {ACTIVE_MODEL} loaded in {time.time()-start:.2f}s")
+        tokenizer = AutoTokenizer.from_pretrained(ACTIVE_MODEL)
 except Exception as e:
     raise RuntimeError(f"Failed to load model: {str(e)}")
 
@@ -62,7 +66,15 @@ def ping():
 async def chat_endpoint(request: ChatRequest):
     try:
         if not IS_USE_MODEL:
-            return {"response": "Random words"}
+            random_responses = [
+                "Hmm, I'm not sure what you mean. Can you provide more details?",
+                "Yes",
+                "No",
+                "I'm not sure",
+                "I don't know",
+            ]
+            response = random.choice(random_responses)
+            return {"response": response}
         # Create chat template
         messages = [
             {"role": "system", "content": "You are a helpful assistant."},
