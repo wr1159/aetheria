@@ -19,10 +19,12 @@ export default class HelloScene extends Phaser.Scene {
     private isNearWizard = false;
     private isChatDialogOpen = false;
     private chatDialog!: Phaser.GameObjects.Container;
-    private dialogInput!: Phaser.GameObjects.DOMElement;
-    private dialogInputText = "";
+    private dialogInputText = ""; // Text being input by the user
+    private inputText!: Phaser.GameObjects.Text; // Phaser Text object to display user input
+    private inputCursor!: Phaser.GameObjects.Rectangle; // Cursor for text input
     private wizardMessages: { sender: string; text: string }[] = [];
     private interactKey!: Phaser.Input.Keyboard.Key;
+    private cursorBlinkTimer!: Phaser.Time.TimerEvent; // Timer for cursor blinking
 
     constructor() {
         super("hello");
@@ -228,27 +230,46 @@ export default class HelloScene extends Phaser.Scene {
         messagesArea.setOrigin(0.5);
         this.chatDialog.add(messagesArea);
 
-        // Add input area
+        // Add input area background
         const inputArea = this.add.rectangle(
             0,
             background.displayHeight / 2 - 70,
             background.displayWidth - 100,
             60,
-            0xf8ecc9,
+            0x4a2511,
             0.3
         );
         inputArea.setOrigin(0.5);
         this.chatDialog.add(inputArea);
 
-        // Add input field
-        this.dialogInput = this.add.dom(
-            0,
+        // Add input field (now using Phaser Text instead of DOM Element)
+        this.inputText = this.add.text(
+            -inputArea.width / 2 + 20,
             background.displayHeight / 2 - 70,
-            "input",
-            "width: 80%; height: 40px; padding: 5px; font-size: 16px; border: 2px solid #4a2511; background-color: #f8ecc9;"
+            "",
+            {
+                fontSize: "16px",
+                color: "#4a2511",
+                backgroundColor: "#cfb98a",
+                padding: { x: 10, y: 5 },
+                fixedWidth: inputArea.width - 160, // Leave space for the send button
+            }
         );
-        this.dialogInput.setOrigin(0.5);
-        this.chatDialog.add(this.dialogInput);
+        this.inputText.setOrigin(0, 0.5);
+        this.inputText.setName("inputText");
+        this.chatDialog.add(this.inputText);
+
+        // Add text cursor
+        this.inputCursor = this.add.rectangle(
+            this.inputText.x + 10, // Initial position
+            this.inputText.y,
+            2,
+            this.inputText.height - 10,
+            0x4a2511
+        );
+        this.inputCursor.setOrigin(0, 0.5);
+        this.inputCursor.setName("inputCursor");
+        this.chatDialog.add(this.inputCursor);
 
         // Add send button
         const sendButton = this.add.text(
@@ -287,16 +308,40 @@ export default class HelloScene extends Phaser.Scene {
             prompt.destroy();
         }
 
-        // Focus on input field
-        const inputElement = this.dialogInput.getChildByName(
-            "input"
-        ) as HTMLInputElement;
-        if (inputElement) {
-            inputElement.focus();
-        }
+        // Reset input text
+        this.dialogInputText = "";
+        this.updateInputDisplay();
+
+        // Start cursor blinking
+        this.cursorBlinkTimer = this.time.addEvent({
+            delay: 500,
+            callback: this.blinkCursor,
+            callbackScope: this,
+            loop: true,
+        });
 
         // Set up input handling for chat
         this.input.keyboard?.on("keydown", this.handleDialogKeydown, this);
+    }
+
+    private blinkCursor() {
+        if (this.inputCursor) {
+            this.inputCursor.setVisible(!this.inputCursor.visible);
+        }
+    }
+
+    private updateInputDisplay() {
+        // Update the displayed text
+        this.inputText.setText(this.dialogInputText);
+
+        // Update cursor position based on text width
+        const textWidth =
+            this.dialogInputText.length > 0
+                ? this.inputText.width - 20 // Adjust for padding
+                : 10;
+
+        this.inputCursor.x = this.inputText.x + textWidth + 10;
+        this.inputCursor.setVisible(true); // Ensure cursor is visible after input
     }
 
     private closeChatDialog() {
@@ -308,6 +353,11 @@ export default class HelloScene extends Phaser.Scene {
 
         // Remove keyboard listener
         this.input.keyboard?.off("keydown", this.handleDialogKeydown, this);
+
+        // Stop cursor blinking
+        if (this.cursorBlinkTimer) {
+            this.cursorBlinkTimer.remove();
+        }
     }
 
     private handleDialogKeydown(event: KeyboardEvent) {
@@ -318,27 +368,20 @@ export default class HelloScene extends Phaser.Scene {
         } else if (event.key === "Escape") {
             this.closeChatDialog();
         } else if (event.key === "Backspace") {
-            this.dialogInputText = this.dialogInputText.slice(0, -1);
+            // Remove last character
+            if (this.dialogInputText.length > 0) {
+                this.dialogInputText = this.dialogInputText.slice(0, -1);
+                this.updateInputDisplay();
+            }
         } else if (event.key.length === 1) {
+            // Add character to input (limited to printable characters)
             this.dialogInputText += event.key;
-        }
-
-        // Update input field
-        const inputElement = this.dialogInput.getChildByName(
-            "input"
-        ) as HTMLInputElement;
-        if (inputElement) {
-            inputElement.value = this.dialogInputText;
+            this.updateInputDisplay();
         }
     }
 
     private async sendWizardMessage() {
-        const inputElement = this.dialogInput.getChildByName(
-            "input"
-        ) as HTMLInputElement;
-        const message = inputElement
-            ? inputElement.value
-            : this.dialogInputText;
+        const message = this.dialogInputText;
 
         if (message.trim() === "") return;
 
@@ -347,19 +390,29 @@ export default class HelloScene extends Phaser.Scene {
 
         // Clear input
         this.dialogInputText = "";
-        if (inputElement) {
-            inputElement.value = "";
-            inputElement.focus();
+        this.updateInputDisplay();
+
+        // Send message to backend
+        try {
+            const resp = await fetch("http://localhost:8001/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    message: message,
+                    session_id: "default",
+                }),
+            });
+            const json = await resp.json();
+            this.addWizardMessage(json.response, "Wizard");
+        } catch (error) {
+            console.error("Error communicating with the wizard:", error);
+            this.addWizardMessage(
+                "I seem to be having trouble with my magical powers...",
+                "Wizard"
+            );
         }
-        const resp = await fetch("http://localhost:8001/chat", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ message }),
-        });
-        const json = await resp.json();
-        this.addWizardMessage(json.response, "Wizard");
     }
 
     private addWizardMessage(text: string, sender: string) {
