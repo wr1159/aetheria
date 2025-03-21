@@ -12,6 +12,7 @@ FLOCK_MODEL_NAME = "flock-io/Flock_Web3_Agent_Model"  # Specialized Web3 model
 
 # Choose which model to use (TINY_MODEL_NAME is active, FLOCK_MODEL_NAME is commented out)
 ACTIVE_MODEL = FLOCK_MODEL_NAME  # Uncomment to use Flock Web3 Agent Model
+IS_USE_MODEL = False
 
 # Load model and tokenizer
 try:
@@ -36,7 +37,7 @@ except Exception as e:
     raise RuntimeError(f"Failed to load model: {str(e)}")
 
 class ChatRequest(BaseModel):
-    query: str
+    message: str
     session_id: str = "default"
 
 # Add ping endpoint
@@ -47,10 +48,12 @@ def ping():
 @app.post("/chat")
 async def chat_endpoint(request: ChatRequest):
     try:
+        if not IS_USE_MODEL:
+            return {"response": "Random words"}
         # Create chat template
         messages = [
             {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": request.query}
+            {"role": "user", "content": request.message}
         ]
         
         # Generate prompt using chat template
