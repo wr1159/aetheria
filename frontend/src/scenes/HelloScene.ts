@@ -7,6 +7,7 @@ export default class HelloScene extends Phaser.Scene {
     private chatMessages: string[] = []; // To store chat messages
     private isInputMode = false; // To track if the user is in input mode
     private chatInputText = ""; // To hold the current chat input
+    private backgroundMusic!: Phaser.Sound.BaseSound;
 
     // Medieval village elements
     private buildings: Phaser.GameObjects.Image[] = [];
@@ -35,20 +36,30 @@ export default class HelloScene extends Phaser.Scene {
 
     preload() {
         // Load medieval assets
-        this.load.image("village-bg", "assets/images/aetheria-bg.png");
-        this.load.image("villager", "assets/images/knight.png");
+        this.load.image("village-bg", "assets/images/village-bg.png");
+        this.load.image("villager", "assets/images/wizardnpc.png");
         this.load.image("wizard", "assets/images/wizard.png");
         this.load.image("house1", "assets/images/house1.png");
         this.load.image("house2", "assets/images/house2.png");
         this.load.image("tree", "assets/images/tree.png");
         this.load.image("stone", "assets/images/stone.png");
         this.load.image("scroll", "assets/images/scroll.png");
+
+        // Load background music
+        this.load.audio("medieval-music", "assets/audio/medieval-music.mp3");
     }
 
     create() {
         const { width, height } = this.scale;
         const centerX = width * 0.5;
         const centerY = height * 0.5;
+
+        // Play background music
+        this.backgroundMusic = this.sound.add("medieval-music", {
+            volume: 0.5,
+            loop: true,
+        });
+        this.backgroundMusic.play();
 
         // Create medieval village background
         this.add.image(centerX, centerY, "village-bg").setScale(1.2);

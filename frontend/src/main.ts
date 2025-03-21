@@ -4,8 +4,8 @@ import HelloScene from "./scenes/HelloScene";
 const config: Phaser.Types.Core.GameConfig = {
     parent: "app",
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: 1280,
+    height: 640,
     scale: {
         mode: Phaser.Scale.ScaleModes.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
