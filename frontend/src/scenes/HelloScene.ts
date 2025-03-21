@@ -332,7 +332,7 @@ export default class HelloScene extends Phaser.Scene {
         }
     }
 
-    private sendWizardMessage() {
+    private async sendWizardMessage() {
         const inputElement = this.dialogInput.getChildByName(
             "input"
         ) as HTMLInputElement;
@@ -351,22 +351,15 @@ export default class HelloScene extends Phaser.Scene {
             inputElement.value = "";
             inputElement.focus();
         }
-
-        // Simulate wizard response (replace with API call later)
-        setTimeout(() => {
-            const responses = [
-                "Ah, the curiosity of youth! Let me share some ancient wisdom with you...",
-                "By the beard of Merlin! That's a question I haven't heard in centuries.",
-                "The arcane arts are not to be taken lightly, young one. But I shall enlighten you.",
-                "In my many years of studying the mystical forces, I've learned that the answer you seek lies within.",
-                "The stars foretold your coming. Your question is most intriguing...",
-                "Hmm, let me consult my crystal ball for the answer to that question.",
-                "The ancient tomes speak of such matters. Allow me to recall what they say...",
-            ];
-            const randomResponse =
-                responses[Math.floor(Math.random() * responses.length)];
-            this.addWizardMessage(randomResponse, "Wizard");
-        }, 1000);
+        const resp = await fetch("http://localhost:8001/chat", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ message }),
+        });
+        const json = await resp.json();
+        this.addWizardMessage(json.response, "Wizard");
     }
 
     private addWizardMessage(text: string, sender: string) {
