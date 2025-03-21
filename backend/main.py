@@ -1,11 +1,22 @@
 # main.py
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 import time
 import torch
 
 app = FastAPI()
+origins = ["*"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 # Model Configuration
 FLOCK_MODEL_NAME = "flock-io/Flock_Web3_Agent_Model"  # Specialized Web3 model
@@ -16,6 +27,8 @@ IS_USE_MODEL = False
 
 # Load model and tokenizer
 try:
+    if not IS_USE_MODEL:
+        raise RuntimeError("Model is disabled")
     start = time.time()
     model = AutoModelForCausalLM.from_pretrained(
         ACTIVE_MODEL,
