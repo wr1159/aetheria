@@ -209,7 +209,7 @@ export default class HelloScene extends Phaser.Scene {
         // Add title
         const title = this.add.text(
             0,
-            -background.displayHeight / 2 + 50,
+            -background.displayHeight / 2 + 36,
             "Conversation with the Wizard",
             {
                 fontSize: "24px",
@@ -222,8 +222,8 @@ export default class HelloScene extends Phaser.Scene {
 
         // Add close button
         const closeButton = this.add.text(
-            background.displayWidth / 2 - 60,
-            -background.displayHeight / 2 + 40,
+            background.displayWidth / 2 - 56,
+            -background.displayHeight / 2 + 44,
             "X",
             { fontSize: "24px", color: "#4a2511", fontStyle: "bold" }
         );
@@ -236,7 +236,7 @@ export default class HelloScene extends Phaser.Scene {
         this.messagesArea = this.add.rectangle(
             0,
             -20, // Moved up to leave space for input at the bottom
-            background.displayWidth - 100,
+            background.displayWidth - 270,
             background.displayHeight - 180, // Slightly smaller to make room for input
             0xf8ecc9,
             0.1
@@ -292,7 +292,7 @@ export default class HelloScene extends Phaser.Scene {
         const inputArea = this.add.rectangle(
             0,
             background.displayHeight / 2 - 70,
-            background.displayWidth - 100,
+            background.displayWidth - 270,
             60, // Initial height, will expand if needed
             0x4a2511,
             0.3
