@@ -66,6 +66,8 @@ def get_portfolio_holdings(address):
             new_results[index]["token_address"] = result["token_address"]
             new_results[index]["symbol"] = result["symbol"]
             new_results[index]["name"] = result["name"]
+        # sort by portfolio percentage
+        new_results = sorted(new_results, key=lambda x: x["portfolio_percentage"], reverse=True)
 
         print("===Portfolio Holdings===")
         print(new_results)
