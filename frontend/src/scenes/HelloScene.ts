@@ -270,6 +270,8 @@ export default class HelloScene extends Phaser.Scene {
             "wheel",
             (
                 pointer: Phaser.Input.Pointer,
+                _gameObjects: any,
+                _deltaX: number,
                 deltaY: number
             ) => {
                 if (
@@ -347,7 +349,7 @@ export default class HelloScene extends Phaser.Scene {
 
         // Clamp scroll position
         const maxScroll = Math.max(
-            0,
+            -this.messagesArea.height,
             this.scrollableHeight - this.messagesArea.height
         );
         this.scrollPosition = Phaser.Math.Clamp(
