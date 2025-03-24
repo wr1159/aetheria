@@ -2,17 +2,12 @@ export default class HelloScene extends Phaser.Scene {
     private player!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
     private obstacles!: Phaser.Physics.Arcade.StaticGroup;
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
-    private dataText!: Phaser.GameObjects.Text; // To display fetched data
-    private chatInput!: Phaser.GameObjects.DOMElement; // To hold the chat input
-    private chatMessages: string[] = []; // To store chat messages
     private isInputMode = false; // To track if the user is in input mode
-    private chatInputText = ""; // To hold the current chat input
     private backgroundMusic!: Phaser.Sound.BaseSound;
 
     // Medieval village elements
     private buildings: Phaser.GameObjects.Image[] = [];
     private trees: Phaser.GameObjects.Image[] = [];
-    private villageBackground!: Phaser.GameObjects.TileSprite;
 
     // NPC related properties
     private wizard!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
@@ -275,8 +270,6 @@ export default class HelloScene extends Phaser.Scene {
             "wheel",
             (
                 pointer: Phaser.Input.Pointer,
-                gameObjects: any,
-                deltaX: number,
                 deltaY: number
             ) => {
                 if (
@@ -518,7 +511,7 @@ export default class HelloScene extends Phaser.Scene {
         let yPos = 0;
 
         // Create all messages
-        this.wizardMessages.forEach((message, index) => {
+        this.wizardMessages.forEach((message) => {
             const isWizard = message.sender === "Wizard";
             const xPos = isWizard
                 ? -this.messagesArea.width / 2 + 20
