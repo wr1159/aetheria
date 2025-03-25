@@ -68,7 +68,7 @@ const MintPage: React.FC = () => {
                                     ease: "easeInOut",
                                 }}
                             >
-                                ✨ Summoning... ✨
+                                ✨ Summoning {selectedGender}... ✨
                             </motion.div>
                         </motion.div>
                     )}
