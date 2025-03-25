@@ -56,7 +56,6 @@ def get_portfolio_holdings(address):
             params=params,
         )
         results = raw_results["result"]
-        # I want to overwrite the result with only the values I want, so I will loop through the results and create a new dictionary with only the values
         new_results = [{} for _ in range(len(results))]
 
         
@@ -127,14 +126,13 @@ def get_wallet_age(address):
                     last_transaction = max(chain['last_transaction']['block_timestamp'], last_transaction)
         if (first_transaction is not None) and (last_transaction is not None):
             # convert to datetime and calculate wallet age
-            print(first_transaction)
             first_transaction = datetime.fromisoformat(first_transaction.replace('Z', '+00:00'))
             last_transaction = datetime.fromisoformat(last_transaction.replace('Z', '+00:00'))
             wallet_age = last_transaction - first_transaction
 
         print("===Wallet Age===")   
         print(wallet_age)
-        return wallet_age
+        return str(wallet_age)
     except Exception as e:
         print(f"Error in get_chain_activity: {e}")
         return None
@@ -157,6 +155,24 @@ def get_pnl(address):
         print(f"Error in get_pnl: {e}")
         return None
 
+def get_ens(address):
+    try:
+        params = {
+        "address": address
+        }
+
+        ens = evm_api.resolve.resolve_address(
+        api_key=API_KEY,
+        params=params,
+        )
+        return ens
+
+    except Exception as e:
+        print(f"Error in get_ens: {e}")
+        return None
+    
+
+
 def get_wallet_information(address):
     """Retrieve and display comprehensive wallet information"""
     print(f"\nGetting wallet information for: {address}\n")
@@ -167,8 +183,9 @@ def get_wallet_information(address):
         return None
     
     results = {}
+    results["ens"] = get_ens(address)
     results["wallet_age"] = get_wallet_age(address)
-    results["wallet_summary"] = get_wallet_summary(address)
+    # results["wallet_summary"] = get_wallet_summary(address)
     results["portfolio_holdings"] = get_portfolio_holdings(address)
     results["wallet_networth"] = get_wallet_networth(address)
     results["pnl"] = get_pnl(address)
@@ -177,6 +194,6 @@ def get_wallet_information(address):
 
 # Only run if this script is executed directly
 if __name__ == "__main__":
-    test_address = "0x6B411100c72bA2445E50fFd20839c28B3546dE7c"
+    test_address = "0x1f9090aaE28b8a3dCeaDf281B0F12828e676c326"
     results = get_wallet_information(test_address)
     print(results)
