@@ -4,9 +4,10 @@ export const theme = {
     extend: {
         colors: {
             rpg: {
-                primary: "#8B4513", // Saddle Brown
-                secondary: "#D2691E", // Chocolate
-                accent: "#FFD700", // Gold
+                // https://www.color-hex.com/color-palette/1057231
+                primary: "#F0C17F", // Cream
+                secondary: "#2b3a4f", // Dark Blue
+                accent: "#c87318", // Orange
                 background: "#2C1810", // Dark Brown
                 text: "#F5DEB3", // Wheat
             },

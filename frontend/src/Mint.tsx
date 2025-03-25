@@ -27,7 +27,7 @@ const MintPage: React.FC = () => {
                 <div className="grid grid-cols-2 gap-4 mb-8">
                     <button
                         className={`rpg-button ${
-                            selectedGender === "male" ? "bg-rpg-secondary" : ""
+                            selectedGender === "male" ? "bg-rpg-primary" : ""
                         }`}
                         onClick={() => setSelectedGender("male")}
                     >
@@ -37,9 +37,7 @@ const MintPage: React.FC = () => {
 
                     <button
                         className={`rpg-button ${
-                            selectedGender === "female"
-                                ? "bg-rpg-secondary"
-                                : ""
+                            selectedGender === "female" ? "bg-rpg-primary" : ""
                         }`}
                         onClick={() => setSelectedGender("female")}
                     >
