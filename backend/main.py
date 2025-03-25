@@ -3,6 +3,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
+from moralis_api import get_wallet_information
 import time, torch, os, random
 
 app = FastAPI()
@@ -56,6 +57,8 @@ except Exception as e:
 class ChatRequest(BaseModel):
     message: str
     session_id: str = "default"
+class AddressRequest(BaseModel):
+    address: str
 
 # Add ping endpoint
 @app.get("/ping")
@@ -108,6 +111,14 @@ async def chat_endpoint(request: ChatRequest):
         
         return {"response": response}
     
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/wallet_analysis")
+async def wallet_analysis(request: AddressRequest):
+    try:
+        wallet_summary = get_wallet_information(request.address)
+        return {"wallet_summary": wallet_summary}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
