@@ -23,9 +23,11 @@
     "vite": "^4.5.2"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.0.16",
     "framer-motion": "^12.6.0",
     "phaser": "^3.87.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.0.16"
   }
 }
