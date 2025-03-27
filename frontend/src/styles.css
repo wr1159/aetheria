@@ -1,2 +1,6 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
+
+body {
+    cursor: url("../assets/images/cursor.png"), auto;
+}

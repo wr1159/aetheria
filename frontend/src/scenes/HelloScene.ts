@@ -4,6 +4,7 @@ export default class HelloScene extends Phaser.Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
     private isInputMode = false; // To track if the user is in input mode
     private backgroundMusic!: Phaser.Sound.BaseSound;
+    // Custom cursor sprite
 
     // Medieval village elements
     private buildings: Phaser.GameObjects.Image[] = [];
@@ -34,11 +35,10 @@ export default class HelloScene extends Phaser.Scene {
         this.load.image("village-bg", "assets/images/village-bg.png");
         this.load.image("villager", "assets/images/wizardnpc.png");
         this.load.image("wizard", "assets/images/wizard.png");
-        this.load.image("house1", "assets/images/house1.png");
-        this.load.image("house2", "assets/images/house2.png");
-        this.load.image("tree", "assets/images/tree.png");
-        this.load.image("stone", "assets/images/stone.png");
+    
+       
         this.load.image("scroll", "assets/images/scroll.png");
+        this.load.image("cursor", "assets/images/cursor.png"); // Load cursor image
 
         // Load background music
         this.load.audio("medieval-music", "assets/audio/medieval-music.mp3");
@@ -48,6 +48,9 @@ export default class HelloScene extends Phaser.Scene {
         const { width, height } = this.scale;
         const centerX = width * 0.5;
         const centerY = height * 0.5;
+
+        // Hide the default cursor
+        
 
         // Play background music
         this.backgroundMusic = this.sound.add("medieval-music", {
@@ -60,7 +63,7 @@ export default class HelloScene extends Phaser.Scene {
         this.add.image(centerX, centerY, "village-bg").setScale(1.2);
 
         // Add buildings to the village
-        this.createVillage();
+
 
         // Create player (villager)
         this.player = this.physics.add.sprite(
@@ -70,6 +73,13 @@ export default class HelloScene extends Phaser.Scene {
         );
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.8);
+
+        // Set custom collision box for player (bottom 60% of sprite)
+        const playerHeight = this.player.height * 0.8; // Account for scale
+        const collisionHeight = playerHeight * 0.5; // 60% of sprite height
+        const collisionOffset = (playerHeight - collisionHeight) / 2; // Center the collision box
+        this.player.body.setSize(this.player.width * 0.8, collisionHeight, false);
+        this.player.body.setOffset(0, collisionOffset);
 
         // Create wizard NPC
         this.wizard = this.physics.add.sprite(
@@ -91,31 +101,50 @@ export default class HelloScene extends Phaser.Scene {
 
         // Create obstacles (stones)
         this.obstacles = this.physics.add.staticGroup();
-        this.obstacles
-            .create(centerX + 200, centerY + 100, "stone")
-            .setScale(0.7);
-        this.obstacles
-            .create(centerX - 200, centerY + 150, "stone")
-            .setScale(0.6);
-        this.obstacles
-            .create(centerX + 100, centerY - 150, "stone")
-            .setScale(0.8);
-
+        this.obstacles.add(
+            this.add.rectangle(centerX, centerY - 200, 1500, 200, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX + 535, centerY - 100, 10, 200, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX + 600, centerY - 100, 50, 200, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX - 500 , centerY + 200, 750, 280, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX - 450 , centerY + 350, 750, 100, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX + 850 , centerY + 200, 750, 280, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX + 200 , centerY + 350, 250, 100, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX + 570 , centerY + 350, 250, 100, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX + 250 , centerY + 170, 50, 100, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX + 150 , centerY + 190, 50, 70, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX + 220 , centerY + 100, 150, 20, 0x000000, 0.5)
+        );
+        
+        
+        
         // Add collision detection
         this.physics.add.collider(this.player, this.obstacles);
         this.physics.add.collider(this.player, this.wizard);
 
-        // Add buildings as obstacles
-        this.buildings.forEach((building) => {
-            this.physics.add.existing(building, true);
-            this.physics.add.collider(this.player, building);
-        });
 
+ 
         // Add trees as obstacles
-        this.trees.forEach((tree) => {
-            this.physics.add.existing(tree, true);
-            this.physics.add.collider(this.player, tree);
-        });
+        
 
         // Add overlap detection for wizard interaction zone
         this.physics.add.overlap(
@@ -138,35 +167,7 @@ export default class HelloScene extends Phaser.Scene {
         this.createChatDialog();
     }
 
-    private createVillage() {
-        const { width, height } = this.scale;
-
-        // Add houses
-        const house1 = this.add.image(width * 0.2, height * 0.3, "house1");
-        house1.setScale(1.2);
-        this.buildings.push(house1);
-
-        const house2 = this.add.image(width * 0.8, height * 0.4, "house2");
-        house2.setScale(1.1);
-        this.buildings.push(house2);
-
-        const house3 = this.add.image(width * 0.6, height * 0.2, "house1");
-        house3.setScale(1.0);
-        house3.flipX = true;
-        this.buildings.push(house3);
-
-        // Add trees
-        for (let i = 0; i < 5; i++) {
-            const tree = this.add.image(
-                Phaser.Math.Between(50, width - 50),
-                Phaser.Math.Between(50, height - 50),
-                "tree"
-            );
-            tree.setScale(0.7);
-            this.trees.push(tree);
-        }
-    }
-
+  
     private handleWizardProximity() {
         if (!this.isNearWizard) {
             this.isNearWizard = true;
@@ -566,6 +567,9 @@ export default class HelloScene extends Phaser.Scene {
     update() {
         const speed = 160;
         this.player.setVelocity(0);
+
+        // Update custom cursor position
+        
 
         // Check for wizard interaction
         if (
