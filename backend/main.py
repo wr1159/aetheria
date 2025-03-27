@@ -4,8 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from moralis_api import get_wallet_information
-import time, torch, os, random
+from venice import generate_character_traits, remove_background, generate_image_prompt, generate_character_image
+import time, torch, os, random, logging
+from imgurpython import ImgurClient
+from dotenv import load_dotenv
 
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 app = FastAPI()
 origins = ["*"]
 
@@ -17,6 +22,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Load environment variables
+if os.path.isfile('.env'):
+    load_dotenv()
+elif os.path.isfile('../.env'):
+    load_dotenv('../.env')
+
+# Get API keys
+IMGUR_CLIENT_ID = os.environ.get("IMGUR_CLIENT_ID")
+IMGUR_CLIENT_SECRET = os.environ.get("IMGUR_CLIENT_SECRET")
+
+# Initialize Imgur client
+# imgur_client = ImgurClient(IMGUR_CLIENT_ID, IMGUR_CLIENT_SECRET)
 
 # Model Configuration
 FLOCK_MODEL_NAME = "flock-io/Flock_Web3_Agent_Model"  # Specialized Web3 model
@@ -59,6 +76,9 @@ class ChatRequest(BaseModel):
     session_id: str = "default"
 class AddressRequest(BaseModel):
     address: str
+class AvatarRequest(BaseModel):
+    address: str
+    sex: str
 
 # Add ping endpoint
 @app.get("/ping")
@@ -119,6 +139,61 @@ async def wallet_analysis(request: AddressRequest):
     try:
         wallet_summary = get_wallet_information(request.address)
         return {"wallet_summary": wallet_summary}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/generate_avatar")
+async def generate_avatar(request: AvatarRequest):
+    try:
+        # 1. Get wallet information
+        logger.info(f"1. Fetching wallet information for {request.address}")
+        wallet_info = get_wallet_information(request.address)
+        if not wallet_info:
+            raise HTTPException(status_code=400, detail="Could not fetch wallet information")
+
+        # 2. Generate character traits
+        logger.info(f"2. Generating character traits for {request.address} and {request.sex}")
+        character_traits = generate_character_traits(wallet_info, request.sex)
+        logger.info(f"Character traits: {character_traits}")
+
+        # 3. Generate image prompt
+        logger.info(f"3. Generating image prompt")
+        image_prompt = generate_image_prompt(character_traits)
+        logger.info(f"Image prompt: {image_prompt}")
+
+        # 4. Generate character image
+        logger.info(f"4. Generating character image")
+        image_bytes = generate_character_image(image_prompt)
+        logger.info(f"Character image generated")
+
+        # 5. Process image and remove background
+        logger.info(f"5. Processing image and removing background")
+        processed_image = remove_background(image_bytes)
+        logger.info(f"Image processed and background removed")
+
+        # 6. Save processed image temporarily
+        logger.info(f"6. Saving processed image temporarily")
+        temp_filename = f"temp_{request.address}.png"
+        processed_image.save(temp_filename, "PNG")
+        logger.info(f"Image saved temporarily: {temp_filename}")
+
+        # 7. Upload to Imgur
+        # try:
+        #     upload_result = imgur_client.upload_from_path(temp_filename)
+        #     image_url = upload_result['link']
+        # except Exception as e:
+        #     raise HTTPException(status_code=500, detail=f"Failed to upload image to Imgur: {str(e)}")
+        # finally:
+        #     # Clean up temporary file
+        #     if os.path.exists(temp_filename):
+        #         os.remove(temp_filename)
+
+        return {
+            # "image_url": image_url,
+            "image_url": temp_filename,
+            "character_traits": character_traits
+        }
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
