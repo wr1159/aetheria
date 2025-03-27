@@ -164,15 +164,17 @@ async def generate_avatar(request: AvatarRequest):
         # 4. Generate character image
         logger.info(f"4. Generating character image")
         image_bytes = generate_character_image(image_prompt)
-        logger.info(f"Character image generated")
 
         # 5. Process image and remove background
         logger.info(f"5. Processing image and removing background")
         processed_image = remove_background(image_bytes)
-        logger.info(f"Image processed and background removed")
 
-        # 6. Save processed image temporarily
-        logger.info(f"6. Saving processed image temporarily")
+        # 6. Resize the image to 71x127
+        logger.info(f"6. Resizing image to 71x127")
+        processed_image = processed_image.resize((71, 127))
+
+        # 7. Save processed image temporarily
+        logger.info(f"7. Saving processed image temporarily")
         temp_filename = f"temp_{request.address}.png"
         processed_image.save(temp_filename, "PNG")
         logger.info(f"Image saved temporarily: {temp_filename}")
