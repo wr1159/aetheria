@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import ConnectButton from "./components/ConnectButton";
 
 const MintPage: React.FC = () => {
     const [selectedGender, setSelectedGender] = useState<
@@ -19,6 +20,7 @@ const MintPage: React.FC = () => {
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4">
+            <ConnectButton />
             <div className="rpg-card max-w-md w-full">
                 <h1 className="text-2xl text-center mb-8 text-rpg-accent">
                     Summon Your Character
