@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from moralis_api import get_wallet_information
 from venice import generate_character_traits, remove_background, generate_image_prompt, generate_character_image
+from supabase_api import upload_image
 import time, torch, os, random, logging
 from imgurpython import ImgurClient
 from dotenv import load_dotenv
@@ -175,24 +176,18 @@ async def generate_avatar(request: AvatarRequest):
 
         # 7. Save processed image temporarily
         logger.info(f"7. Saving processed image temporarily")
-        temp_filename = f"temp_{request.address}.png"
+        temp_filename = f"{request.address}.png"
         processed_image.save(temp_filename, "PNG")
         logger.info(f"Image saved temporarily: {temp_filename}")
 
-        # 7. Upload to Imgur
-        # try:
-        #     upload_result = imgur_client.upload_from_path(temp_filename)
-        #     image_url = upload_result['link']
-        # except Exception as e:
-        #     raise HTTPException(status_code=500, detail=f"Failed to upload image to Imgur: {str(e)}")
-        # finally:
-        #     # Clean up temporary file
-        #     if os.path.exists(temp_filename):
-        #         os.remove(temp_filename)
+        # 8. Upload to Supabse
+        logger.info(f"8. Uploading image to Supabase")
+        image_url = upload_image(temp_filename)
+        logger.info(f"Image uploaded to Supabase: {image_url}")
 
         return {
-            # "image_url": image_url,
-            "image_url": temp_filename,
+            "image_url": image_url,
+            # "image_url": temp_filename,
             "character_traits": character_traits
         }
 

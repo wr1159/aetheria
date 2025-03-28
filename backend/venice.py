@@ -16,7 +16,7 @@ def generate_image_prompt(character_traits):
     """Generate an image prompt using Venice API based on character traits"""
     url = "https://api.venice.ai/api/v1/chat/completions"
     prompt_request = {
-        "model": "llama-3.1-405b",
+        "model": "llama-3.3-70b",
         "messages": [
             {
                 "role": "system",
@@ -258,7 +258,8 @@ if __name__ == "__main__":
                 
             
                 Include specific details about appearance, colors, and visual elements that reflect their status and trading style.
-                Keep the prompt under 2048 characters and above 1000 characters."""
+                Keep the prompt under 2000 characters and above 1000 characters.
+                Keep the prompt under 2000 characters and above 1000 characters."""
             
             }
         ],
