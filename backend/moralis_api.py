@@ -67,8 +67,8 @@ def get_portfolio_holdings(address):
             new_results[index]["name"] = result["name"]
         # sort by portfolio percentage
         new_results = sorted(new_results, key=lambda x: x["portfolio_percentage"], reverse=True)
-        # filter top 3 only
-        new_results = new_results[:3]
+        # filter top 1 only
+        new_results = new_results[:1]
 
         print("===Portfolio Holdings===")
         print(new_results)

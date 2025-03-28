@@ -16,11 +16,10 @@ def upload_image(temp_filename):
                     file_options={"cache-control": "3600", "upsert": "false"}
                 )
             )
-            image_url = response["url"]
     except Exception as e:
         raise e
     # finally:
     #     # Clean up temporary file
     #     if os.path.exists(temp_filename):
     #         os.remove(temp_filename)
-    return image_url
+    return f"https://hpjvtdbwhoosveqbvogp.supabase.co/storage/v1/object/aetheria/{temp_filename}"

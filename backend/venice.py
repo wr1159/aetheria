@@ -16,12 +16,12 @@ def generate_image_prompt(character_traits):
     """Generate an image prompt using Venice API based on character traits"""
     url = "https://api.venice.ai/api/v1/chat/completions"
     prompt_request = {
-        "model": "llama-3.3-70b",
+        "model": "llama-3.1-405b",
         "messages": [
             {
                 "role": "system",
                 "content": """You are an expert at creating detailed image generation prompts for pixel art characters in medieval fantasy games.
-                Create a prompt that will generate a character sprite that accurately represents the given traits.
+                Create a less than 2048 character prompt that will generate a south east facing character sprite that accurately represents the given traits.
                 The prompt should be detailed and specific, focusing on visual elements, colors, and style.
                 Format the prompt to work well with image generation AI models.
                 Put extreme emphasis on the pixel art style.
@@ -29,7 +29,7 @@ def generate_image_prompt(character_traits):
                 ENSURE THE CHARACTER MAINTAINS THE NES CHUNKY PIXEL ART STYLE WITH A 16-BIT RESOLUTION.
                 Follow this exact structure:
                 1. Start with "Create a tiny, extremely low-resolution pixel art sprite for a 16-bit top-down RPG, similar to Terraria or Pokémon. the character follows a strict 32x32 or 32x64 pixel grid, ensuring chunky, clearly visible pixels with no gradients or unnecessary details"
-                2. Describe the character's basic identity and status
+                2. Describe the character's basic identity, status and top holdings
                 3. Detail their appearance and equipment
                 4. Describe age-related characteristics
                 5. Include trading style characteristics
@@ -38,13 +38,13 @@ def generate_image_prompt(character_traits):
             {
                 "role": "user",
                 "content": f"""Create a detailed image generation prompt for a pixel art character with these traits:
+                - Top Holdings: {''.join(character_traits['top_holdings'])}
                 - Character Class: {character_traits['character_class']}
                 - Social Status: {character_traits['social_class']}
                 - Age: {character_traits['age_category']}
                 - Gender: {character_traits['gender']}
                 - Trading Style: {character_traits['trading_style']}
                 - Risk Level: {character_traits['risk_level']}
-                - Top Holdings: {', '.join(character_traits['top_holdings'])}
                 
                 Include specific details about appearance, colors, and visual elements that reflect their status and trading style.
                 Keep the prompt under 2048 characters and above 1000 characters."""
