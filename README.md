@@ -3,18 +3,40 @@
 Vite + Phaser + Typescript starter template.
 
 ## Features
-- Minting NFT avatar based on own wallet tx history.
+
+- Minting NFT avatar with generated image based on own wallet tx history and analysis.
 - AI NPC behaviour based on wallet history.
-- AI NPC and Player will have the same NFT avatar. Player can choose to be using the NFT avatar or amongst default avatars
-- Talk to pre-defined NPC and other player NPCs.
-- Pre defined NPCs will also be AI.
-- Create maps for different zones based on random top mcap coins ie: "ETH LAND", "SOL LAND".
+  - AI NPC and Player will have the same NFT avatar. Player can choose to be using the NFT avatar or amongst default avatars
+  - Talk to pre-defined NPC and other player NPCs.
+  - Pre defined NPCs will also be AI.
+- Create maps for different zones based on random top mcap coins ie: "ETH LAND", "SOL LAND". ⬇️⬇️
 
 Predefined NPCs:
 
 - Wizard -> General crypto enquiries.
 - Jailor / Sheriff -> Explore transactions of criminals. Show transactions as a graph (ZachXBT)
 - Witch / Oracle* -> RNG generates random <1m mcap memecoin day (not the same for all players true random).
+
+## TODO
+
+### Backend TODO
+
+- [x] Wallet Analysis with Moralis
+- [x] Generate Image with Venice
+- [x] ERC721
+- [ ] Minting logic - Generate Background Removed Image + Upload to hosting provider + Contract Minting
+- [ ] Add RAG + VectorDB for memory retrieval + more context
+- [ ] Add separation of "personalities" for each NPC
+- [ ] Host Backend
+- [ ] Add Jailor Logic⬇️
+
+### Frontend TODO
+
+- [ ] Add bounding boxes for map
+- [ ] Spawn minted avatars
+- [ ] Separate Chat logic for each NPC
+- [ ] Mint Page Frontend
+- [ ] Add Minigame (dodging)⬇️️
 
 ## Preview
 
