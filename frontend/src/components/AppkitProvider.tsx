@@ -1,7 +1,7 @@
 import React from "react";
 import { createAppKit } from "@reown/appkit/react";
 import { WagmiProvider } from "wagmi";
-import { base, mainnet } from "@reown/appkit/networks";
+import { anvil, eduChainTestnet } from "@reown/appkit/networks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 
@@ -12,10 +12,11 @@ const queryClient = new QueryClient();
 const projectId = "YOUR_PROJECT_ID";
 
 // 3. Set the networks
+const networks = [eduChainTestnet, anvil];
 
 // 4. Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
-    networks: [mainnet, base],
+    networks,
     projectId,
     ssr: true,
 });
@@ -23,7 +24,7 @@ const wagmiAdapter = new WagmiAdapter({
 // 5. Create modal
 createAppKit({
     adapters: [wagmiAdapter],
-    networks: [mainnet, base],
+    networks: [eduChainTestnet, anvil],
     projectId,
     features: {
         analytics: true, // Optional - defaults to your Cloud configuration
