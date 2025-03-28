@@ -7,8 +7,6 @@ export default class HelloScene extends Phaser.Scene {
     private foreground!: Phaser.GameObjects.Image; // Add foreground property
 
     // Medieval village elements
-    private buildings: Phaser.GameObjects.Image[] = [];
-    private trees: Phaser.GameObjects.Image[] = [];
 
     // NPC related properties
     private wizard!: Phaser.Types.Physics.Arcade.SpriteWithDynamicBody;
