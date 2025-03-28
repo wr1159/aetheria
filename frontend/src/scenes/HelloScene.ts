@@ -4,7 +4,7 @@ export default class HelloScene extends Phaser.Scene {
     private cursors!: Phaser.Types.Input.Keyboard.CursorKeys | undefined;
     private isInputMode = false; // To track if the user is in input mode
     private backgroundMusic!: Phaser.Sound.BaseSound;
-    // Custom cursor sprite
+    private foreground!: Phaser.GameObjects.Image; // Add foreground property
 
     // Medieval village elements
     private buildings: Phaser.GameObjects.Image[] = [];
@@ -39,6 +39,7 @@ export default class HelloScene extends Phaser.Scene {
        
         this.load.image("scroll", "assets/images/scroll.png");
         this.load.image("cursor", "assets/images/cursor.png"); // Load cursor image
+        this.load.image("foreground", "assets/images/foreground.png"); // Load foreground image
 
         // Load background music
         this.load.audio("medieval-music", "assets/audio/medieval-music.mp3");
@@ -61,6 +62,11 @@ export default class HelloScene extends Phaser.Scene {
 
         // Create medieval village background
         this.add.image(centerX, centerY, "village-bg").setScale(1.2);
+
+        // Create foreground (will be in front of player)
+        this.foreground = this.add.image(centerX, centerY, "foreground");
+        this.foreground.setScale(1.2);
+        this.foreground.setDepth(1); // Ensure it's above the player
 
         // Add buildings to the village
 
@@ -111,7 +117,10 @@ export default class HelloScene extends Phaser.Scene {
             this.add.rectangle(centerX + 600, centerY - 100, 50, 200, 0x000000, 0.5)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX - 500 , centerY + 200, 750, 280, 0x000000, 0.5)
+            this.add.rectangle(centerX - 830 , centerY + 200, 750, 280, 0x000000, 0.5)
+        );
+        this.obstacles.add(
+            this.add.rectangle(centerX - 250 , centerY + 200, 280, 280, 0x000000, 0.5)
         );
         this.obstacles.add(
             this.add.rectangle(centerX - 450 , centerY + 350, 750, 100, 0x000000, 0.5)
