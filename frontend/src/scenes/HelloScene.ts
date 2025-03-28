@@ -66,7 +66,7 @@ export default class HelloScene extends Phaser.Scene {
         // Create foreground (will be in front of player)
         this.foreground = this.add.image(centerX, centerY, "foreground");
         this.foreground.setScale(1.2);
-        this.foreground.setDepth(1); // Ensure it's above the player
+        this.foreground.setDepth(0.9); // Ensure it's above the player
 
         // Add buildings to the village
 
@@ -108,40 +108,40 @@ export default class HelloScene extends Phaser.Scene {
         // Create obstacles (stones)
         this.obstacles = this.physics.add.staticGroup();
         this.obstacles.add(
-            this.add.rectangle(centerX, centerY - 200, 1500, 200, 0x000000, 0.5)
+            this.add.rectangle(centerX, centerY - 200, 1500, 200, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 535, centerY - 100, 10, 200, 0x000000, 0.5)
+            this.add.rectangle(centerX + 535, centerY - 100, 10, 200, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 600, centerY - 100, 50, 200, 0x000000, 0.5)
+            this.add.rectangle(centerX + 600, centerY - 100, 50, 200, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX - 830 , centerY + 200, 750, 280, 0x000000, 0.5)
+            this.add.rectangle(centerX - 830 , centerY + 200, 750, 280, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX - 250 , centerY + 200, 280, 280, 0x000000, 0.5)
+            this.add.rectangle(centerX - 250 , centerY + 200, 280, 280, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX - 450 , centerY + 350, 750, 100, 0x000000, 0.5)
+            this.add.rectangle(centerX - 450 , centerY + 350, 750, 100, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 850 , centerY + 200, 750, 280, 0x000000, 0.5)
+            this.add.rectangle(centerX + 850 , centerY + 200, 750, 280, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 200 , centerY + 350, 250, 100, 0x000000, 0.5)
+            this.add.rectangle(centerX + 200 , centerY + 350, 250, 100, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 570 , centerY + 350, 250, 100, 0x000000, 0.5)
+            this.add.rectangle(centerX + 570 , centerY + 350, 250, 100, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 250 , centerY + 170, 50, 100, 0x000000, 0.5)
+            this.add.rectangle(centerX + 250 , centerY + 170, 50, 100, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 150 , centerY + 190, 50, 70, 0x000000, 0.5)
+            this.add.rectangle(centerX + 150 , centerY + 190, 50, 70, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 220 , centerY + 100, 150, 20, 0x000000, 0.5)
+            this.add.rectangle(centerX + 220 , centerY + 100, 150, 20, 0x000000, 0)
         );
         
         
@@ -204,11 +204,12 @@ export default class HelloScene extends Phaser.Scene {
         this.chatDialog = this.add.container(width / 2, height / 2);
         this.chatDialog.setVisible(false);
         this.chatDialog.setExclusive(true);
-
+        this.chatDialog.setDepth(1.2);
         // Add scroll background
         const background = this.add.image(0, 0, "scroll");
         background.setScale(1.5);
         background.setOrigin(0.5);
+        
         this.chatDialog.add(background);
 
         // Add title
@@ -240,7 +241,7 @@ export default class HelloScene extends Phaser.Scene {
         // Add chat messages area - position it higher to leave space for input
         this.messagesArea = this.add.rectangle(
             0,
-            -20, // Moved up to leave space for input at the bottom
+            0, // Moved up to leave space for input at the bottom
             background.displayWidth - 270,
             background.displayHeight - 180, // Slightly smaller to make room for input
             0xf8ecc9,
@@ -256,7 +257,7 @@ export default class HelloScene extends Phaser.Scene {
         maskGraphics.setAlpha(0);
         maskGraphics.fillRect(
             width / 2 - this.messagesArea.width / 2,
-            height / 2 - this.messagesArea.height / 2 - 20, // Adjust for the new position
+            height / 2 - this.messagesArea.height / 2 - 0, // Adjust for the new position
             this.messagesArea.width,
             this.messagesArea.height
         );
@@ -296,7 +297,7 @@ export default class HelloScene extends Phaser.Scene {
         // Add input area background at the bottom
         const inputArea = this.add.rectangle(
             0,
-            background.displayHeight / 2 - 70,
+            background.displayHeight / 2 - 50,
             background.displayWidth - 270,
             60, // Initial height, will expand if needed
             0x4a2511,
@@ -309,7 +310,7 @@ export default class HelloScene extends Phaser.Scene {
         // Add input field (now using Phaser Text instead of DOM Element)
         this.inputText = this.add.text(
             -inputArea.width / 2 + 20,
-            background.displayHeight / 2 - 70,
+            background.displayHeight / 2 - 50,
             "",
             {
                 fontSize: "16px",
@@ -330,7 +331,7 @@ export default class HelloScene extends Phaser.Scene {
         // Add send button
         const sendButton = this.add.text(
             inputArea.width / 2 - 50,
-            background.displayHeight / 2 - 70,
+            background.displayHeight / 2 - 50,
             "Send",
             {
                 fontSize: "18px",
