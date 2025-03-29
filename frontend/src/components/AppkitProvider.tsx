@@ -5,23 +5,18 @@ import { anvil, eduChainTestnet } from "@reown/appkit/networks";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
 
-// 0. Setup queryClient
 const queryClient = new QueryClient();
 
-// 1. Get projectId from https://cloud.reown.com
-const projectId = "YOUR_PROJECT_ID";
+const projectId = "8bcd1c1314eca84c967115bfcab8e931";
 
-// 3. Set the networks
 const networks = [eduChainTestnet, anvil];
 
-// 4. Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
     networks,
     projectId,
     ssr: true,
 });
 
-// 5. Create modal
 createAppKit({
     adapters: [wagmiAdapter],
     networks: [eduChainTestnet, anvil],
