@@ -24,6 +24,10 @@ export default class HelloScene extends Phaser.Scene {
     private scrollPosition = 0; // Current scroll position
     private scrollableHeight = 0; // Total height of all messages
 
+    // Add sound properties
+    private scrollOpenSound!: Phaser.Sound.BaseSound;
+    
+
     constructor() {
         super("hello");
     }
@@ -41,6 +45,10 @@ export default class HelloScene extends Phaser.Scene {
 
         // Load background music
         this.load.audio("medieval-music", "assets/audio/medieval-music.mp3");
+
+        // Load sound effects
+         this.load.audio('scrollOpen', 'assets/audio/scroll-open.wav');
+        
     }
 
     create() {
@@ -57,6 +65,7 @@ export default class HelloScene extends Phaser.Scene {
             loop: true,
         });
         this.backgroundMusic.play();
+        
 
         // Create medieval village background
         this.add.image(centerX, centerY, "village-bg").setScale(1.2);
@@ -161,7 +170,7 @@ export default class HelloScene extends Phaser.Scene {
             undefined,
             this
         );
-
+    
         // Input handling
         this.cursors = this.input.keyboard?.createCursorKeys();
         if (this.input.keyboard) {
@@ -172,6 +181,10 @@ export default class HelloScene extends Phaser.Scene {
 
         // Create chat dialog (initially hidden)
         this.createChatDialog();
+
+        // After loading sounds
+        this.scrollOpenSound = this.sound.add("scrollOpen");
+        
     }
 
   
@@ -394,6 +407,9 @@ export default class HelloScene extends Phaser.Scene {
 
         // Scroll to bottom of messages
         this.scrollToBottom();
+
+        // Play scroll open sound
+         this.scrollOpenSound.play();
     }
 
     private scrollToBottom() {
@@ -504,6 +520,9 @@ export default class HelloScene extends Phaser.Scene {
                 "Wizard"
             );
         }
+
+        // Play message sent sound
+      
     }
 
     private addWizardMessage(text: string, sender: string) {
