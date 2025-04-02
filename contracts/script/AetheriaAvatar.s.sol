@@ -2,17 +2,17 @@
 pragma solidity ^0.8.13;
 
 import {Script, console} from "forge-std/Script.sol";
-import {Counter} from "../src/Counter.sol";
+import {AetheriaAvatar} from "../src/AetheriaAvatar.sol";
 
-contract CounterScript is Script {
-    Counter public counter;
+contract AetheriaAvatarScript is Script {
+    AetheriaAvatar public aetheriaAvatar;
 
     function setUp() public {}
 
     function run() public {
         vm.startBroadcast();
 
-        counter = new Counter();
+        aetheriaAvatar = new AetheriaAvatar();
 
         vm.stopBroadcast();
     }
