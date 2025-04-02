@@ -27,12 +27,9 @@ contract AetheriaAvatar is ERC721URIStorage, Ownable {
 
     constructor() ERC721("Aetheria", "ATH") Ownable(msg.sender) {}
 
-    function mintAvatar(
-        address player,
-        string memory tokenURI
-    ) public returns (uint256) {
+    function mintAvatar(string memory tokenURI) public returns (uint256) {
         uint256 tokenId = _nextTokenId++;
-        _mint(player, tokenId);
+        _mint(msg.sender, tokenId);
         _setTokenURI(tokenId, tokenURI);
 
         // Initialize attributes

@@ -16,7 +16,9 @@ contract AetheriaAvatarTest is Test {
     }
 
     function testMintAvatar() public {
-        uint256 tokenId = aetheriaAvatar.mintAvatar(player, "tokenURI");
+        vm.prank(player);
+        uint256 tokenId = aetheriaAvatar.mintAvatar("tokenURI");
+
         (uint256 xp, uint256 level, uint256 questionsAnswered) = aetheriaAvatar
             .getAvatarAttributes(tokenId);
 
@@ -30,7 +32,8 @@ contract AetheriaAvatarTest is Test {
     }
 
     function testIncrementAttributes() public {
-        uint256 tokenId = aetheriaAvatar.mintAvatar(player, "tokenURI");
+        vm.prank(player);
+        uint256 tokenId = aetheriaAvatar.mintAvatar("tokenURI");
 
         // Increment attributes
         aetheriaAvatar.incrementAttributes(tokenId, 1500, 5);
@@ -47,7 +50,8 @@ contract AetheriaAvatarTest is Test {
     }
 
     function testIncrementAttributesOnlyOwner() public {
-        uint256 tokenId = aetheriaAvatar.mintAvatar(player, "tokenURI");
+        vm.prank(player);
+        uint256 tokenId = aetheriaAvatar.mintAvatar("tokenURI");
 
         // Attempt to increment attributes from a non-owner address
         vm.expectRevert();
@@ -56,7 +60,8 @@ contract AetheriaAvatarTest is Test {
     }
 
     function testGetAvatarAttributes() public {
-        uint256 tokenId = aetheriaAvatar.mintAvatar(player, "tokenURI");
+        vm.prank(player);
+        uint256 tokenId = aetheriaAvatar.mintAvatar("tokenURI");
         aetheriaAvatar.incrementAttributes(tokenId, 2000, 3);
 
         (uint256 xp, uint256 level, uint256 questionsAnswered) = aetheriaAvatar
