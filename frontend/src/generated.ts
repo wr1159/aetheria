@@ -76,10 +76,7 @@ export const aetheriaAvatarAbi = [
   },
   {
     type: 'function',
-    inputs: [
-      { name: 'player', internalType: 'address', type: 'address' },
-      { name: 'tokenURI', internalType: 'string', type: 'string' },
-    ],
+    inputs: [{ name: 'tokenURI', internalType: 'string', type: 'string' }],
     name: 'mintAvatar',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'nonpayable',

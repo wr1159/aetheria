@@ -1,18 +1,30 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ConnectButton from "./components/ConnectButton";
+import { useChainId, useWriteContract } from "wagmi";
+import { aetheriaAvatarAbi, aetheriaAvatarAddress } from "./generated";
 
 const MintPage: React.FC = () => {
-    const [selectedGender, setSelectedGender] = useState<
-        "male" | "female" | null
-    >(null);
+    const [selectedGender, setSelectedGender] = useState<"male" | "female">(
+        "male"
+    );
     const [isSummoning, setIsSummoning] = useState(false);
+    const chainId = useChainId();
+    const { writeContract } = useWriteContract();
 
     const handleMint = async () => {
         if (!selectedGender) return;
 
         setIsSummoning(true);
-        // TODO: Implement actual minting logic here
+        writeContract({
+            address:
+                aetheriaAvatarAddress[
+                    chainId as keyof typeof aetheriaAvatarAddress
+                ],
+            abi: aetheriaAvatarAbi,
+            functionName: "mintAvatar",
+            args: [selectedGender], // TODO: Make link from API
+        });
         setTimeout(() => {
             setIsSummoning(false);
         }, 3000);
