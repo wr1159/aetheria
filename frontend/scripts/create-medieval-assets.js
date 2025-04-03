@@ -185,4 +185,120 @@ for (let i = 0; i < 20; i++) {
 fs.writeFileSync(`${assetsDir}/scroll.png`, scrollCanvas.toBuffer('image/png'));
 console.log('Created scroll.png');
 
+// Create summoning background
+const summoningBgCanvas = createCanvas(800, 600);
+const summoningBgCtx = summoningBgCanvas.getContext('2d');
+
+// Draw mystical background
+const gradient = summoningBgCtx.createLinearGradient(0, 0, 0, 600);
+gradient.addColorStop(0, '#1a1a2e');
+gradient.addColorStop(1, '#16213e');
+summoningBgCtx.fillStyle = gradient;
+summoningBgCtx.fillRect(0, 0, 800, 600);
+
+// Add stars
+for (let i = 0; i < 100; i++) {
+    const x = Math.random() * 800;
+    const y = Math.random() * 600;
+    const size = Math.random() * 2 + 1;
+    summoningBgCtx.fillStyle = '#ffffff';
+    summoningBgCtx.beginPath();
+    summoningBgCtx.arc(x, y, size, 0, Math.PI * 2);
+    summoningBgCtx.fill();
+}
+
+// Add mystical symbols
+const symbols = ['✨', '⭐', '🌟', '💫'];
+for (let i = 0; i < 20; i++) {
+    const x = Math.random() * 800;
+    const y = Math.random() * 600;
+    const symbol = symbols[Math.floor(Math.random() * symbols.length)];
+    summoningBgCtx.font = '24px Arial';
+    summoningBgCtx.fillText(symbol, x, y);
+}
+
+// Save background image
+fs.writeFileSync(`${assetsDir}/summoning-bg.png`, summoningBgCanvas.toBuffer('image/png'));
+console.log('Created summoning-bg.png');
+
+// Create summoning animation frames
+const frames = [];
+const frameCount = 10;
+
+for (let i = 0; i < frameCount; i++) {
+    const frameCanvas = createCanvas(256, 256);
+    const frameCtx = frameCanvas.getContext('2d');
+    
+    // Clear frame
+    frameCtx.clearRect(0, 0, 256, 256);
+    
+    // Draw magic circle
+    frameCtx.strokeStyle = '#ff00ff';
+    frameCtx.lineWidth = 3;
+    frameCtx.beginPath();
+    frameCtx.arc(128, 128, 100, 0, Math.PI * 2);
+    frameCtx.stroke();
+    
+    // Draw rotating symbols
+    const angle = (i / frameCount) * Math.PI * 2;
+    const symbols = ['✨', '⭐', '🌟', '💫'];
+    symbols.forEach((symbol, index) => {
+        const symbolAngle = angle + (index * Math.PI / 2);
+        const x = 128 + Math.cos(symbolAngle) * 80;
+        const y = 128 + Math.sin(symbolAngle) * 80;
+        frameCtx.font = '24px Arial';
+        frameCtx.fillText(symbol, x, y);
+    });
+    
+    // Add pulsing center
+    const pulseSize = 50 + Math.sin(i / frameCount * Math.PI * 2) * 20;
+    frameCtx.fillStyle = 'rgba(255, 0, 255, 0.5)';
+    frameCtx.beginPath();
+    frameCtx.arc(128, 128, pulseSize, 0, Math.PI * 2);
+    frameCtx.fill();
+    
+    frames.push(frameCanvas.toBuffer('image/png'));
+}
+
+// Save animation frames
+frames.forEach((frame, index) => {
+    fs.writeFileSync(`${assetsDir}/summoning-frame-${index}.png`, frame);
+});
+
+console.log('Created summoning animation frames');
+
+// Create summon button image
+const buttonCanvas = createCanvas(300, 100);
+const buttonCtx = buttonCanvas.getContext('2d');
+
+// Draw button background
+const buttonGradient = buttonCtx.createLinearGradient(0, 0, 0, 100);
+buttonGradient.addColorStop(0, '#8B4513'); // SaddleBrown
+buttonGradient.addColorStop(1, '#654321'); // Darker brown
+buttonCtx.fillStyle = buttonGradient;
+buttonCtx.fillRect(0, 0, 300, 100);
+
+// Add decorative border
+buttonCtx.strokeStyle = '#DAA520'; // Goldenrod
+buttonCtx.lineWidth = 3;
+buttonCtx.strokeRect(5, 5, 290, 90);
+
+// Add text
+buttonCtx.font = 'bold 24px MedievalSharp';
+buttonCtx.fillStyle = '#FFD700'; // Gold
+buttonCtx.textAlign = 'center';
+buttonCtx.textBaseline = 'middle';
+buttonCtx.fillText('Summon Character', 150, 50);
+
+// Add decorative elements
+const symbols = ['✨', '⚔️', '🛡️', '🔮'];
+symbols.forEach((symbol, index) => {
+    buttonCtx.font = '20px Arial';
+    buttonCtx.fillText(symbol, 50 + (index * 50), 30);
+});
+
+// Save button image
+fs.writeFileSync(`${assetsDir}/summon-button.png`, buttonCanvas.toBuffer('image/png'));
+console.log('Created summon-button.png');
+
 console.log('All medieval assets created successfully!'); 

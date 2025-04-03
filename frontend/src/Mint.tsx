@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import ConnectButton from "./components/ConnectButton";
 import { useChainId, useWriteContract } from "wagmi";
 import { aetheriaAvatarAbi, aetheriaAvatarAddress } from "./generated";
+import "./styles/pixel.css";
+
 
 const MintPage: React.FC = () => {
     const [selectedGender, setSelectedGender] = useState<"male" | "female">(
@@ -31,68 +33,117 @@ const MintPage: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center p-4">
-            <ConnectButton />
-            <div className="rpg-card max-w-md w-full">
-                <h1 className="text-2xl text-center mb-8 text-rpg-accent">
-                    Summon Your Character
-                </h1>
+        <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+            {/* Background Image - Fixed to cover entire viewport */}
+            <div className="fixed inset-0 z-0">
+                <img 
+                    src="/assets/images/summoning-bg.png" 
+                    alt="Summoning Background" 
+                    className="w-full h-full object-cover"
+                />
+            </div>
 
-                <div className="grid grid-cols-2 gap-4 mb-8">
-                    <button
-                        className={`rpg-button ${
-                            selectedGender === "male" ? "bg-rpg-primary" : ""
-                        }`}
-                        onClick={() => setSelectedGender("male")}
-                    >
-                        <span className="text-xl">♂️</span>
-                        <span className="block text-sm">Male</span>
-                    </button>
-
-                    <button
-                        className={`rpg-button ${
-                            selectedGender === "female" ? "bg-rpg-primary" : ""
-                        }`}
-                        onClick={() => setSelectedGender("female")}
-                    >
-                        <span className="text-xl">♀️</span>
-                        <span className="block text-sm">Female</span>
-                    </button>
+            <div className="relative z-10 w-full max-w-4xl flex flex-col items-center gap-8">
+                <div className="w-full flex justify-center pb-4">
+                    <ConnectButton />
                 </div>
-
-                <AnimatePresence>
-                    {isSummoning && (
-                        <motion.div
-                            initial={{ scale: 0, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            exit={{ scale: 0, opacity: 0 }}
-                            className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50"
+                <div className="rpg-card flex flex-col items-center justify-center max-w-md w-full bg-opacity-90 mx-auto">
+                   
+                    <div className="grid grid-cols-2 gap-4 mb-8 w-full">
+                        <motion.button
+                            className={`pixel-button ${
+                                selectedGender === "male" ? "selected" : ""
+                            }`}
+                            onClick={() => setSelectedGender("male")}
+                            whileTap={{ scale: 0.95 }}
                         >
+                            
+                            <span>MALE</span>
+                        </motion.button>
+
+                        <motion.button
+                            className={`pixel-button ${
+                                selectedGender === "female" ? "selected" : ""
+                            }`}
+                            onClick={() => setSelectedGender("female")}
+                            whileTap={{ scale: 0.95 }}
+                        >
+                            
+                            <span>FEMALE</span>
+                        </motion.button>
+                    </div>
+
+                    <AnimatePresence>
+                        {isSummoning && (
                             <motion.div
-                                className="text-rpg-accent text-4xl"
+                                initial={{ scale: 0, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0, opacity: 0 }}
+                                className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+                            >
+                                <div className="relative w-full h-full flex items-center justify-center">
+                                    <img 
+                                        src="/assets/images/summoning-animation.gif" 
+                                        alt="Summoning Animation" 
+                                        className="w-full h-full object-cover"
+                                    />
+                                    <motion.div
+                                        className="absolute inset-0 flex items-center justify-center text-rpg-accent text-4xl"
+                                        animate={{
+                                            scale: [1, 1.2, 1],
+                                            rotate: [0, 360],
+                                        }}
+                                        transition={{
+                                            duration: 2,
+                                            repeat: Infinity,
+                                            ease: "easeInOut",
+                                        }}
+                                    >
+                                        ✨ Summoning {selectedGender}... ✨
+                                    </motion.div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    <button 
+                        className="relative w-64"
+                        onClick={handleMint}
+                        disabled={!selectedGender || isSummoning}
+                        
+                    >
+                         
+                            <motion.div
+                                className="relative w-full h-full"
                                 animate={{
-                                    scale: [1, 1.2, 1],
-                                    rotate: [0, 360],
+                                    rotate: [0, -0.5, 0.5, -0.5, 0.5, 3, -3, 0],
                                 }}
                                 transition={{
                                     duration: 2,
                                     repeat: Infinity,
                                     ease: "easeInOut",
                                 }}
+                                whileHover={{
+                                    rotate: [3, -3, 3, -3, 3, -3],
+                                    
+                                    transition: {
+                                        duration: 0.5,
+                                        repeat: Infinity,
+                                    }
+                                }}
                             >
-                                ✨ Summoning {selectedGender}... ✨
+                                <img 
+                                    src="/assets/images/summon-button.png" 
+                                    alt="Summon Character" 
+                                    className="w-64 object-contain"
+                                    
+                                
+                                    
+                                />
                             </motion.div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-
-                <button
-                    className="rpg-button w-full"
-                    onClick={handleMint}
-                    disabled={!selectedGender || isSummoning}
-                >
-                    {isSummoning ? "Summoning..." : "Summon Character"}
-                </button>
+                        
+                    </button>
+                </div>
             </div>
         </div>
     );

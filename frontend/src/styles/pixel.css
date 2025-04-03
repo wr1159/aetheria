@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+@font-face {
+    font-family: 'Freddy'; /*a name to be used later*/
+    src: url('../assets/fonts/Freddy.ttf'); /*URL to font*/
+}
+
+.pixel-button {
+    font-family: 'Freddy';
+    position: relative;
+    background-color: #4a4a4a;
+    border: none;
+    color: white;
+    padding: 15px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px 2px;
+    cursor:  url("../assets/images/cursor.png"), auto;
+    border-radius: 0;
+    box-shadow: 4px 4px 0px 0px #2a2a2a;
+    transition: all 0.1s ease;
+}
+
+.pixel-button:hover {
+    box-shadow: 6px 6px 0px 0px #2a2a2a;
+    transform: translate(-2px, -2px);
+}
+
+.pixel-button:active {
+    box-shadow: 2px 2px 0px 0px #2a2a2a;
+    transform: translate(2px, 2px);
+}
+
+.pixel-button.selected {
+    background-color: #7562cc;
+    box-shadow: 2px 2px 0px 0px #2a2a2a;
+    transform: translate(2px, 2px);
+}
+
+.pixel-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pixel-button span {
+    display: block;
+    margin-top: 8px;
+} 

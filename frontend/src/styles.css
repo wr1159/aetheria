@@ -4,3 +4,12 @@
 body {
     cursor: url("../assets/images/cursor.png"), auto;
 }
+
+button {
+    cursor: url("../assets/images/cursor.png"), auto;
+}
+
+ConnectButton {
+    cursor: url("../assets/images/cursor.png"), auto;
+}
+
