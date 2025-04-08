@@ -7,20 +7,6 @@ import "./styles/pixel.css";
 
 
 
-const { writeContract } = useWriteContract();
-const chainId = useChainId();
-
-const nftAddressResolved =
-        aetheriaAvatarAddress[chainId as keyof typeof aetheriaAvatarAddress];
-
-const mintNft = async () => {
-  writeContract({
-            abi: aetheriaAvatarAbi,
-            address: nftAddressResolved,
-            functionName: "mintAvatar",
-            args: ["BLANK"],
-        });
-}
 
 
 const MintPage: React.FC = () => {
@@ -46,7 +32,7 @@ const MintPage: React.FC = () => {
         });
         setTimeout(() => {
             setIsSummoning(false);
-        }, 3000);
+        }, 30000);
     };
 
     return (
@@ -107,25 +93,25 @@ const MintPage: React.FC = () => {
                                     <motion.div
                                         className="absolute inset-0 flex items-center justify-center text-rpg-accent text-4xl"
                                         animate={{
-                                            x: [0, 200, -200, 0],
-                                            y: [0, -100, 100, 0],
+                                            x: [0, 800, -800, 0, 800, -800, 0],
+                                            y: [0, -250, 250, 0, -250, 250, 0],
                                             rotate: [0,360]
                                             
                                             
                                         }}
                                         transition={{
                                             x: {
-                                                duration: 8,
+                                                duration: 32,
                                                 repeat: Infinity,
                                                 ease: "linear"
                                             },
                                             y: {
-                                                duration: 6,
+                                                duration: 12,
                                                 repeat: Infinity,
                                                 ease: "linear"
                                             },
                                             rotate: {
-                                                duration: 4,
+                                                duration: 8,
                                                 repeat: Infinity,
                                                 ease: "linear"
                                             }
@@ -146,10 +132,7 @@ const MintPage: React.FC = () => {
 
                     <button 
                         className="relative w-64"
-                        onClick={() => {
-                            handleMint();
-                            mintNft();
-                        }}
+                        onClick={handleMint}
                         disabled={!selectedGender || isSummoning}
                         
                     >
