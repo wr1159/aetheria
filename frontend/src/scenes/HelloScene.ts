@@ -37,8 +37,18 @@ export default class HelloScene extends Phaser.Scene {
         completed: boolean;
     }[] = [
         {
-            title: "Unlock Hidden Quest from Wizard",
+            title: "Open the Quest Log",
+            description: "Well you did it... now what?",
+            completed: true,
+        },
+        {
+            title: "Talk to the Wizard",
             description: "Find and speak with the village wizard",
+            completed: false,
+        },
+        {
+            title: "Unlock Hidden Quest from Wizard",
+            description: "What does the wizard have in store for us?",
             completed: false,
         },
         {
@@ -802,7 +812,7 @@ export default class HelloScene extends Phaser.Scene {
 
         // Add quests list
         let yPos = -background.displayHeight / 3;
-        this.quests.forEach((quest, index) => {
+        this.quests.forEach((quest) => {
             // Quest title
             const questTitle = this.add.text(
                 -background.displayWidth / 3,
@@ -836,7 +846,7 @@ export default class HelloScene extends Phaser.Scene {
                 quest.completed ? "✓" : "○",
                 {
                     fontSize: "24px",
-                    color: quest.completed ? "#006400" : "#4a2511",
+                    color: quest.completed ? "#02ba02" : "#4a2511",
                 }
             );
             status.setOrigin(0.5);
@@ -864,11 +874,8 @@ export default class HelloScene extends Phaser.Scene {
         if (quest) {
             quest.completed = true;
             // Refresh the quest dialog if it's open
-            if (this.isQuestDialogOpen) {
-                this.questDialog.destroy();
-                this.createQuestDialog();
-                this.questDialog.setVisible(true);
-            }
+            this.questDialog.destroy();
+            this.createQuestDialog();
         }
     }
 
