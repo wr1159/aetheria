@@ -6,6 +6,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from moralis_api import get_wallet_information
 from venice import generate_character_traits, remove_background, generate_image_prompt, generate_character_image
 from supabase_api import upload_image
+from conversation_manager import ConversationManager
 import time, torch, os, random, logging
 from dotenv import load_dotenv
 import replicate
@@ -37,12 +38,16 @@ print ("Model Configuration")
 print(f"Model enabled: {IS_USE_MODEL}")
 print ("====================")
 
+# Initialize conversation manager
+conversation_manager = ConversationManager(max_history_turns=5)
 
 class ChatRequest(BaseModel):
     message: str
     session_id: str = "default"
+
 class AddressRequest(BaseModel):
     address: str
+
 class AvatarRequest(BaseModel):
     address: str
     sex: str
@@ -65,29 +70,52 @@ async def chat_endpoint(request: ChatRequest):
             ]
             response = random.choice(random_responses)
             return {"response": response}
+
+        # Get conversation history and learned concepts
+        history = await conversation_manager.get_conversation_history(request.session_id)
+        learned_concepts = await conversation_manager.get_learned_concepts(request.session_id)
+        
+        # Detect concepts in the current message
+        detected_concepts = conversation_manager.detect_concepts_in_message(request.message)
+        
+        # Format conversation history and learned concepts for the prompt
+        formatted_history = conversation_manager.format_conversation_history(history)
+        formatted_concepts = conversation_manager.format_learned_concepts(learned_concepts)
+
         logger.info(f"Query: {request.message}")
-        query = """You are Niloy, the wise and ancient wizard of Aetheria — a mystical land where blockchain knowledge is discovered through quests and adventure. You are a kind, patient, and knowledgeable guide who helps players understand both the world and the magic that powers it: the blockchain. You speak in a mystical, old-world tone, but you always explain things clearly and simply, as if speaking to a curious beginner.
+        logger.info(f"History: {history}")
+        logger.info(f"Learned concepts: {learned_concepts}")
+        logger.info(f"Detected concepts: {detected_concepts}")
+        
+        query = f"""You are Niloy, the wise and ancient wizard of Aetheria — a mystical land where blockchain knowledge is discovered through quests and adventure. You are a kind, patient, and knowledgeable guide who helps players understand both the world and the magic that powers it: the blockchain. You speak in a mystical, old-world tone, but you always explain things clearly and simply, as if speaking to a curious beginner.
 
             You reside in the Tower of Lore and serve as the guardian of the Ledger of Truth. You welcome newcomers to Aetheria and guide them through their journey, answering their questions with warmth, stories, and metaphors. You remember many ages of magic and have taught countless travelers before.
 
+            {formatted_concepts}
+
+            Previous conversation:
+            {formatted_history}
+
             Constraints and Style Guide:
             - Never use programming language (no code, JSON, arrays, or syntax).
-            - Use fantasy RPG metaphors to explain technical ideas. (e.g., “A wallet is like a soulbound crystal”).
+            - Always speak in English.
+            - Use fantasy RPG metaphors to explain technical ideas. (e.g., "A wallet is like a soulbound crystal").
             - Always prioritize responding to the player's question or statement, even above storytelling.
             - Avoid unexplained technical terms. Use analogies or explain them gently.
             - Stay fully in character. You are not a chatbot, you are Niloy.
             - Use short paragraphs, a warm tone, and invite players to ask more questions.
             - Occasionally test the player with a gentle riddle or quest-like question to reinforce learning.
+            - Reference previously learned concepts when relevant to build upon existing knowledge.
 
             You are also allowed to:
             - Explain who you are or what your role is in the world.
             - Describe the world of Aetheria in fantasy terms when asked.
             - Offer lore-based context like where the user is, what Aetheria is, or what their journey might involve.
 
-            If the user says something idle or whimsical (e.g., “I like turtles”, “hello”, “lol”), respond with good humor and curiosity, while gently steering them back to their quest.
+            If the user says something idle or whimsical (e.g., "I like turtles", "hello", "lol"), respond with good humor and curiosity, while gently steering them back to their quest.
 
             Example Topics the Wizard Might Explain:
-            - What is a blockchain? ("Aetheria’s Ledger of Truth, a scroll that cannot be altered.")
+            - What is a blockchain? ("Aetheria's Ledger of Truth, a scroll that cannot be altered.")
             - What are wallets? ("Your soul-bound crystal that carries your deeds and treasures.")
             - What are smart contracts? ("Binding scrolls of magic that enact agreements without fail.")
             - What is decentralization? ("No king rules alone — power is shared by many guilds.")
@@ -109,6 +137,18 @@ async def chat_endpoint(request: ChatRequest):
                 "tools": "[]",
             }
         )
+        
+        # Save the conversation turn
+        await conversation_manager.save_conversation_turn(
+            request.session_id,
+            request.message,
+            output
+        )
+        
+        # Mark detected concepts as learned
+        for concept in detected_concepts:
+            await conversation_manager.mark_concept_learned(request.session_id, concept)
+        
         logger.info(f"API Output: {output}")
         return {"response": output}
     except Exception as e:
