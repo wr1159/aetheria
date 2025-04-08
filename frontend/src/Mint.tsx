@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import ConnectButton from "./components/ConnectButton";
 import { useChainId, useWriteContract } from "wagmi";
 import { aetheriaAvatarAbi, aetheriaAvatarAddress } from "./generated";
-import "./styles/pixel.css";
+
 
 
 const MintPage: React.FC = () => {
@@ -90,16 +90,37 @@ const MintPage: React.FC = () => {
                                     <motion.div
                                         className="absolute inset-0 flex items-center justify-center text-rpg-accent text-4xl"
                                         animate={{
-                                            scale: [1, 1.2, 1],
-                                            rotate: [0, 360],
+                                            x: [0, 200, -200, 0],
+                                            y: [0, -100, 100, 0],
+                                            rotate: [0,360]
+                                            
+                                            
                                         }}
                                         transition={{
-                                            duration: 2,
-                                            repeat: Infinity,
-                                            ease: "easeInOut",
+                                            x: {
+                                                duration: 8,
+                                                repeat: Infinity,
+                                                ease: "linear"
+                                            },
+                                            y: {
+                                                duration: 6,
+                                                repeat: Infinity,
+                                                ease: "linear"
+                                            },
+                                            rotate: {
+                                                duration: 4,
+                                                repeat: Infinity,
+                                                ease: "linear"
+                                            }
+                                        }}
+                                        style={{
+                                            textShadow: "2px 2px 0px #2a2a2a",
+                                            letterSpacing: "2px",
+                                            color: "#7562cc",
+                                            fontFamily: "'Freddy', monospace"
                                         }}
                                     >
-                                        ✨ Summoning {selectedGender}... ✨
+                                        SUMMONING AVATAR ... 
                                     </motion.div>
                                 </div>
                             </motion.div>

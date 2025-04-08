@@ -27,6 +27,22 @@ export default class HelloScene extends Phaser.Scene {
     // Add sound properties
     private scrollOpenSound!: Phaser.Sound.BaseSound;
     
+    // Add these properties after the other private properties
+    private questIcon!: Phaser.GameObjects.Image;
+    private questDialog!: Phaser.GameObjects.Container;
+    private isQuestDialogOpen = false;
+    private quests: { title: string; description: string; completed: boolean }[] = [
+        { 
+            title: "Unlock Hidden Quest from Wizard", 
+            description: "Find and speak with the village wizard", 
+            completed: false 
+        },
+        { 
+            title: "Explore the Village", 
+            description: "Discover the various areas of the medieval village", 
+            completed: false 
+        }
+    ];
 
     constructor() {
         super("hello");
@@ -42,6 +58,7 @@ export default class HelloScene extends Phaser.Scene {
         this.load.image("scroll", "assets/images/scroll.png");
         this.load.image("cursor", "assets/images/cursor.png"); // Load cursor image
         this.load.image("foreground", "assets/images/foreground.png"); // Load foreground image
+        this.load.image("mini-scroll", "assets/images/quest-scroll.png");
 
         // Load background music
         this.load.audio("medieval-music", "assets/audio/medieval-music.mp3");
@@ -185,6 +202,31 @@ export default class HelloScene extends Phaser.Scene {
         // After loading sounds
         this.scrollOpenSound = this.sound.add("scrollOpen");
         
+        // Create quest icon in top right
+        this.questIcon = this.add.image(width - 40, height - 640, "mini-scroll");
+        this.questIcon.setScale(0.1);
+        this.questIcon.setInteractive({ useHandCursor: true });
+        this.questIcon.setDepth(1.1);
+        
+        // Add a pulsing effect to make it more noticeable
+        this.tweens.add({
+            targets: this.questIcon,
+            scale: 0.11,
+            duration: 1000,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+        // Create quest dialog (initially hidden)
+        this.createQuestDialog();
+        
+        // Add click handler for quest icon
+        this.questIcon.on('pointerdown', () => {
+            if (!this.isQuestDialogOpen) {
+                this.openQuestDialog();
+            }
+        });
     }
 
   
@@ -362,6 +404,7 @@ export default class HelloScene extends Phaser.Scene {
             "Greetings, young villager! I am the wizard of this humble village. What knowledge do you seek?",
             "Wizard"
         );
+        
     }
 
     private scrollMessages(deltaY: number) {
@@ -391,6 +434,7 @@ export default class HelloScene extends Phaser.Scene {
 
         // Disable player movement
         this.isInputMode = true;
+        
 
         // Remove interaction prompt
         const prompt = this.children.getByName("interactionPrompt");
@@ -410,6 +454,12 @@ export default class HelloScene extends Phaser.Scene {
 
         // Play scroll open sound
          this.scrollOpenSound.play();
+
+        // Complete the "Talk to the Wizard" quest if it's the first time
+        const wizardQuest = this.quests.find(q => q.title === "Talk to the Wizard");
+        if (wizardQuest && !wizardQuest.completed) {
+            this.completeQuest("Talk to the Wizard");
+        }
     }
 
     private scrollToBottom() {
@@ -465,6 +515,7 @@ export default class HelloScene extends Phaser.Scene {
 
         // Remove keyboard listener
         this.input.keyboard?.off("keydown", this.handleDialogKeydown, this);
+        
     }
 
     private handleDialogKeydown(event: KeyboardEvent) {
@@ -491,6 +542,7 @@ export default class HelloScene extends Phaser.Scene {
         const message = this.dialogInputText;
 
         if (message.trim() === "") return;
+        
 
         // Add player message
         this.addWizardMessage(message, "Villager");
@@ -520,6 +572,7 @@ export default class HelloScene extends Phaser.Scene {
                 "Wizard"
             );
         }
+        
 
         // Play message sent sound
       
@@ -591,6 +644,102 @@ export default class HelloScene extends Phaser.Scene {
         this.scrollPosition = this.scrollableHeight;
     }
 
+    private createQuestDialog() {
+        const { width, height } = this.scale;
+        
+        // Create container for quest dialog
+        this.questDialog = this.add.container(width / 2, height / 2);
+        this.questDialog.setVisible(false);
+        this.questDialog.setDepth(1.2);
+
+        // Add scroll background
+        const background = this.add.image(0, 0, "scroll");
+        background.setScale(1.2);
+        this.questDialog.add(background);
+
+        // Add title
+        const title = this.add.text(0, -background.displayHeight / 2 + 40, "Quests", {
+            fontSize: "32px",
+            color: "#4a2511",
+            fontStyle: "bold"
+        });
+        title.setOrigin(0.5);
+        this.questDialog.add(title);
+
+        // Add close button
+        const closeButton = this.add.text(
+            background.displayWidth / 2 - 40,
+            -background.displayHeight / 2 + 40,
+            "X",
+            { fontSize: "24px", color: "#4a2511", fontStyle: "bold" }
+        );
+        closeButton.setOrigin(0.5);
+        closeButton.setInteractive({ useHandCursor: true });
+        closeButton.on("pointerdown", () => this.closeQuestDialog());
+        this.questDialog.add(closeButton);
+
+        // Add quests list
+        let yPos = -background.displayHeight / 3;
+        this.quests.forEach((quest, index) => {
+            // Quest title
+            const questTitle = this.add.text(-background.displayWidth / 3, yPos, quest.title, {
+                fontSize: "20px",
+                color: "#4a2511",
+                fontStyle: "bold"
+            });
+            this.questDialog.add(questTitle);
+
+            // Quest description
+            const questDesc = this.add.text(-background.displayWidth / 3, yPos + 25, quest.description, {
+                fontSize: "16px",
+                color: "#4a2511",
+                wordWrap: { width: background.displayWidth * 0.6 }
+            });
+            this.questDialog.add(questDesc);
+
+            // Quest status
+            const status = this.add.text(
+                background.displayWidth / 3 - 40,
+                yPos,
+                quest.completed ? "✓" : "○",
+                {
+                    fontSize: "24px",
+                    color: quest.completed ? "#006400" : "#4a2511"
+                }
+            );
+            status.setOrigin(0.5);
+            this.questDialog.add(status);
+
+            yPos += 80;
+        });
+    }
+
+    private openQuestDialog() {
+        this.isQuestDialogOpen = true;
+        this.questDialog.setVisible(true);
+        this.isInputMode = true; // Disable player movement
+        this.scrollOpenSound.play();
+    }
+
+    private closeQuestDialog() {
+        this.isQuestDialogOpen = false;
+        this.questDialog.setVisible(false);
+        this.isInputMode = false; // Enable player movement
+    }
+
+    private completeQuest(questTitle: string) {
+        const quest = this.quests.find(q => q.title === questTitle);
+        if (quest) {
+            quest.completed = true;
+            // Refresh the quest dialog if it's open
+            if (this.isQuestDialogOpen) {
+                this.questDialog.destroy();
+                this.createQuestDialog();
+                this.questDialog.setVisible(true);
+            }
+        }
+    }
+
     update() {
         const speed = 160;
         this.player.setVelocity(0);
@@ -607,6 +756,9 @@ export default class HelloScene extends Phaser.Scene {
         ) {
             this.openChatDialog();
         }
+
+       
+
 
         // Update wizard interaction state
         if (this.isNearWizard) {
@@ -626,8 +778,8 @@ export default class HelloScene extends Phaser.Scene {
             }
         }
 
-        if (!this.isInputMode) {
-            // Only allow movement if not in input mode
+        if (!this.isInputMode && !this.isQuestDialogOpen) {
+            // Only allow movement if not in input mode and quest dialog is closed
             if (this.cursors) {
                 if (this.cursors.left.isDown) {
                     this.player.setVelocityX(-speed);

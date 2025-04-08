@@ -24,6 +24,7 @@
     "vite": "^4.5.2"
   },
   "dependencies": {
+    "@opencampus/ocid-connect-js": "^2.0.1",
     "@reown/appkit": "^1.7.1",
     "@reown/appkit-adapter-wagmi": "^1.7.1",
     "@tailwindcss/vite": "^4.0.16",
