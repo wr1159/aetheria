@@ -1,27 +1,9 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ConnectButton from "./components/ConnectButton";
-import { useChainId, useWriteContract,  } from "wagmi";
+import { useChainId, useWriteContract } from "wagmi";
 import { aetheriaAvatarAbi, aetheriaAvatarAddress } from "./generated";
 import "./styles/pixel.css";
-
-
-
-const { writeContract } = useWriteContract();
-const chainId = useChainId();
-
-const nftAddressResolved =
-        aetheriaAvatarAddress[chainId as keyof typeof aetheriaAvatarAddress];
-
-const mintNft = async () => {
-  writeContract({
-            abi: aetheriaAvatarAbi,
-            address: nftAddressResolved,
-            functionName: "mintAvatar",
-            args: ["BLANK"],
-        });
-}
-
 
 const MintPage: React.FC = () => {
     const [selectedGender, setSelectedGender] = useState<"male" | "female">(
@@ -53,9 +35,9 @@ const MintPage: React.FC = () => {
         <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
             {/* Background Image - Fixed to cover entire viewport */}
             <div className="fixed inset-0 z-0">
-                <img 
-                    src="/assets/images/summoning-bg.png" 
-                    alt="Summoning Background" 
+                <img
+                    src="/assets/images/summoning-bg.png"
+                    alt="Summoning Background"
                     className="w-full h-full object-cover"
                 />
             </div>
@@ -65,7 +47,6 @@ const MintPage: React.FC = () => {
                     <ConnectButton />
                 </div>
                 <div className="rpg-card flex flex-col items-center justify-center max-w-md w-full bg-opacity-90 mx-auto">
-                   
                     <div className="grid grid-cols-2 gap-4 mb-8 w-full">
                         <motion.button
                             className={`pixel-button ${
@@ -74,7 +55,6 @@ const MintPage: React.FC = () => {
                             onClick={() => setSelectedGender("male")}
                             whileTap={{ scale: 0.95 }}
                         >
-                            
                             <span>MALE</span>
                         </motion.button>
 
@@ -85,7 +65,6 @@ const MintPage: React.FC = () => {
                             onClick={() => setSelectedGender("female")}
                             whileTap={{ scale: 0.95 }}
                         >
-                            
                             <span>FEMALE</span>
                         </motion.button>
                     </div>
@@ -99,9 +78,9 @@ const MintPage: React.FC = () => {
                                 className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
                             >
                                 <div className="relative w-full h-full flex items-center justify-center">
-                                    <img 
-                                        src="/assets/images/summoning-animation.gif" 
-                                        alt="Summoning Animation" 
+                                    <img
+                                        src="/assets/images/summoning-animation.gif"
+                                        alt="Summoning Animation"
                                         className="w-full h-full object-cover"
                                     />
                                     <motion.div
@@ -109,80 +88,71 @@ const MintPage: React.FC = () => {
                                         animate={{
                                             x: [0, 200, -200, 0],
                                             y: [0, -100, 100, 0],
-                                            rotate: [0,360]
-                                            
-                                            
+                                            rotate: [0, 360],
                                         }}
                                         transition={{
                                             x: {
                                                 duration: 8,
                                                 repeat: Infinity,
-                                                ease: "linear"
+                                                ease: "linear",
                                             },
                                             y: {
                                                 duration: 6,
                                                 repeat: Infinity,
-                                                ease: "linear"
+                                                ease: "linear",
                                             },
                                             rotate: {
                                                 duration: 4,
                                                 repeat: Infinity,
-                                                ease: "linear"
-                                            }
+                                                ease: "linear",
+                                            },
                                         }}
                                         style={{
                                             textShadow: "2px 2px 0px #2a2a2a",
                                             letterSpacing: "2px",
                                             color: "#7562cc",
-                                            fontFamily: "'Freddy', monospace"
+                                            fontFamily: "'Freddy', monospace",
                                         }}
                                     >
-                                        SUMMONING AVATAR ... 
+                                        SUMMONING AVATAR ...
                                     </motion.div>
                                 </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
 
-                    <button 
+                    <button
                         className="relative w-64"
                         onClick={() => {
                             handleMint();
-                            mintNft();
                         }}
                         disabled={!selectedGender || isSummoning}
-                        
                     >
-                         
-                            <motion.div
-                                className="relative w-full h-full"
-                                animate={{
-                                    rotate: [0, -0.5, 0.5, -0.5, 0.5, 3, -3, 0],
-                                }}
-                                transition={{
-                                    duration: 2,
+                        <motion.div
+                            className="relative w-full h-full"
+                            animate={{
+                                rotate: [0, -0.5, 0.5, -0.5, 0.5, 3, -3, 0],
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                            }}
+                            whileHover={{
+                                rotate: [3, -3, 3, -3, 3, -3],
+
+                                transition: {
+                                    duration: 0.5,
                                     repeat: Infinity,
-                                    ease: "easeInOut",
-                                }}
-                                whileHover={{
-                                    rotate: [3, -3, 3, -3, 3, -3],
-                                    
-                                    transition: {
-                                        duration: 0.5,
-                                        repeat: Infinity,
-                                    }
-                                }}
-                            >
-                                <img 
-                                    src="/assets/images/summon-button.png" 
-                                    alt="Summon Character" 
-                                    className="w-64 object-contain"
-                                    
-                                
-                                    
-                                />
-                            </motion.div>
-                        
+                                },
+                            }}
+                        >
+                            <img
+                                src="/assets/images/summon-button.png"
+                                alt="Summon Character"
+                                className="w-64 object-contain"
+                            />
+                        </motion.div>
                     </button>
                 </div>
             </div>
@@ -191,4 +161,3 @@ const MintPage: React.FC = () => {
 };
 
 export default MintPage;
-
