@@ -1,9 +1,26 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ConnectButton from "./components/ConnectButton";
-import { useChainId, useWriteContract } from "wagmi";
+import { useChainId, useWriteContract,  } from "wagmi";
 import { aetheriaAvatarAbi, aetheriaAvatarAddress } from "./generated";
+import "./styles/pixel.css";
 
+
+
+const { writeContract } = useWriteContract();
+const chainId = useChainId();
+
+const nftAddressResolved =
+        aetheriaAvatarAddress[chainId as keyof typeof aetheriaAvatarAddress];
+
+const mintNft = async () => {
+  writeContract({
+            abi: aetheriaAvatarAbi,
+            address: nftAddressResolved,
+            functionName: "mintAvatar",
+            args: ["BLANK"],
+        });
+}
 
 
 const MintPage: React.FC = () => {
@@ -129,7 +146,10 @@ const MintPage: React.FC = () => {
 
                     <button 
                         className="relative w-64"
-                        onClick={handleMint}
+                        onClick={() => {
+                            handleMint();
+                            mintNft();
+                        }}
                         disabled={!selectedGender || isSummoning}
                         
                     >
@@ -171,3 +191,4 @@ const MintPage: React.FC = () => {
 };
 
 export default MintPage;
+
