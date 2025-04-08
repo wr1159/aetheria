@@ -1,39 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ConnectButton from "./components/ConnectButton";
-import { useChainId, useWriteContract,  } from "wagmi";
+import { useChainId, useWriteContract } from "wagmi";
 import { aetheriaAvatarAbi, aetheriaAvatarAddress } from "./generated";
 import "./styles/pixel.css";
 
-
-
-
-
 const MintPage: React.FC = () => {
-    const [selectedGender, setSelectedGender] = useState<"male" | "female">(
-        "male"
-    );
-    const [isSummoning, setIsSummoning] = useState(false);
+    const [selectedGender, setSelectedGender] = useState<"male" | "female">("male");
+    const [mintInitiated, setMintInitiated] = useState(false); // Track if minting started
     const chainId = useChainId();
-    const { writeContract } = useWriteContract();
+    const { writeContract, isPending, isSuccess, isError } = useWriteContract();
 
     const handleMint = async () => {
         if (!selectedGender) return;
 
-        setIsSummoning(true);
+        setMintInitiated(true); // Indicate minting process has started
         writeContract({
-            address:
-                aetheriaAvatarAddress[
-                    chainId as keyof typeof aetheriaAvatarAddress
-                ],
+            address: aetheriaAvatarAddress[chainId as keyof typeof aetheriaAvatarAddress],
             abi: aetheriaAvatarAbi,
             functionName: "mintAvatar",
-            args: [selectedGender], // TODO: Make link from API
+            args: [selectedGender],
         });
-        setTimeout(() => {
-            setIsSummoning(false);
-        }, 30000);
     };
+
+    // Effect to reset mintInitiated state once transaction settles
+    useEffect(() => {
+        if (isSuccess || isError) {
+            setMintInitiated(false);
+        }
+    }, [isSuccess, isError]);
+
+    // Condition to show the animation based on user request
+    // Show if initiated AND the specific end condition (isSuccess && isPending) is NOT met
+    const showAnimation = mintInitiated && !(isSuccess && isPending);
+
+    // Disable button only when transaction is pending
+    const disableButton = isPending;
 
     return (
         <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -54,30 +56,24 @@ const MintPage: React.FC = () => {
                    
                     <div className="grid grid-cols-2 gap-4 mb-8 w-full">
                         <motion.button
-                            className={`pixel-button ${
-                                selectedGender === "male" ? "selected" : ""
-                            }`}
+                            className={`pixel-button ${selectedGender === "male" ? "selected" : ""}`}
                             onClick={() => setSelectedGender("male")}
                             whileTap={{ scale: 0.95 }}
                         >
-                            
                             <span>MALE</span>
                         </motion.button>
 
                         <motion.button
-                            className={`pixel-button ${
-                                selectedGender === "female" ? "selected" : ""
-                            }`}
+                            className={`pixel-button ${selectedGender === "female" ? "selected" : ""}`}
                             onClick={() => setSelectedGender("female")}
                             whileTap={{ scale: 0.95 }}
                         >
-                            
                             <span>FEMALE</span>
                         </motion.button>
                     </div>
 
                     <AnimatePresence>
-                        {isSummoning && (
+                        {showAnimation && ( // Use the specific animation condition
                             <motion.div
                                 initial={{ scale: 0, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
@@ -96,31 +92,29 @@ const MintPage: React.FC = () => {
                                             x: [0, 800, -800, 0, 800, -800, 0],
                                             y: [0, -250, 250, 0, -250, 250, 0],
                                             rotate: [0,360]
-                                            
-                                            
                                         }}
                                         transition={{
                                             x: {
                                                 duration: 32,
                                                 repeat: Infinity,
-                                                ease: "linear"
+                                                ease: "linear",
                                             },
                                             y: {
                                                 duration: 12,
                                                 repeat: Infinity,
-                                                ease: "linear"
+                                                ease: "linear",
                                             },
                                             rotate: {
                                                 duration: 8,
                                                 repeat: Infinity,
-                                                ease: "linear"
-                                            }
+                                                ease: "linear",
+                                            },
                                         }}
                                         style={{
                                             textShadow: "2px 2px 0px #2a2a2a",
                                             letterSpacing: "2px",
                                             color: "#7562cc",
-                                            fontFamily: "'Freddy', monospace"
+                                            fontFamily: "'Freddy', monospace",
                                         }}
                                     >
                                         SUMMONING AVATAR ... 
@@ -133,39 +127,32 @@ const MintPage: React.FC = () => {
                     <button 
                         className="relative w-64"
                         onClick={handleMint}
-                        disabled={!selectedGender || isSummoning}
-                        
+                        disabled={disableButton || !selectedGender} // Disable if pending or no gender selected
                     >
-                         
-                            <motion.div
-                                className="relative w-full h-full"
-                                animate={{
-                                    rotate: [0, -0.5, 0.5, -0.5, 0.5, 3, -3, 0],
-                                }}
-                                transition={{
-                                    duration: 2,
+                        <motion.div
+                            className="relative w-full h-full"
+                            animate={{
+                                rotate: [0, -0.5, 0.5, -0.5, 0.5, 3, -3, 0],
+                            }}
+                            transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                ease: "easeInOut",
+                            }}
+                            whileHover={{
+                                rotate: [3, -3, 3, -3, 3, -3],
+                                transition: {
+                                    duration: 0.5,
                                     repeat: Infinity,
-                                    ease: "easeInOut",
-                                }}
-                                whileHover={{
-                                    rotate: [3, -3, 3, -3, 3, -3],
-                                    
-                                    transition: {
-                                        duration: 0.5,
-                                        repeat: Infinity,
-                                    }
-                                }}
-                            >
-                                <img 
-                                    src="/assets/images/summon-button.png" 
-                                    alt="Summon Character" 
-                                    className="w-64 object-contain"
-                                    
-                                
-                                    
-                                />
-                            </motion.div>
-                        
+                                },
+                            }}
+                        >
+                            <img 
+                                src="/assets/images/summon-button.png" 
+                                alt="Summon Character" 
+                                className="w-64 object-contain"
+                            />
+                        </motion.div>
                     </button>
                 </div>
             </div>
@@ -174,4 +161,3 @@ const MintPage: React.FC = () => {
 };
 
 export default MintPage;
-
