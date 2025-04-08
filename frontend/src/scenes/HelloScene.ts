@@ -26,24 +26,27 @@ export default class HelloScene extends Phaser.Scene {
 
     // Add sound properties
     private scrollOpenSound!: Phaser.Sound.BaseSound;
-    
+
     // Add these properties after the other private properties
     private questIcon!: Phaser.GameObjects.Image;
     private questDialog!: Phaser.GameObjects.Container;
     private isQuestDialogOpen = false;
-    private quests: { title: string; description: string; completed: boolean }[] = [
-        { 
-            title: "Unlock Hidden Quest from Wizard", 
-            description: "Find and speak with the village wizard", 
-            completed: false 
+    private quests: {
+        title: string;
+        description: string;
+        completed: boolean;
+    }[] = [
+        {
+            title: "Unlock Hidden Quest from Wizard",
+            description: "Find and speak with the village wizard",
+            completed: false,
         },
-        { 
-            title: "Explore the Village", 
-            description: "Discover the various areas of the medieval village", 
-            completed: false 
-        }
+        {
+            title: "Explore the Village",
+            description: "Discover the various areas of the medieval village",
+            completed: false,
+        },
     ];
-
     constructor() {
         super("hello");
     }
@@ -53,8 +56,7 @@ export default class HelloScene extends Phaser.Scene {
         this.load.image("village-bg", "assets/images/village-bg.png");
         this.load.image("villager", "assets/images/wizardnpc.png");
         this.load.image("wizard", "assets/images/wizard.png");
-    
-       
+
         this.load.image("scroll", "assets/images/scroll.png");
         this.load.image("cursor", "assets/images/cursor.png"); // Load cursor image
         this.load.image("foreground", "assets/images/foreground.png"); // Load foreground image
@@ -64,8 +66,7 @@ export default class HelloScene extends Phaser.Scene {
         this.load.audio("medieval-music", "assets/audio/medieval-music.mp3");
 
         // Load sound effects
-         this.load.audio('scrollOpen', 'assets/audio/scroll-open.wav');
-        
+        this.load.audio("scrollOpen", "assets/audio/scroll-open.wav");
     }
 
     create() {
@@ -74,7 +75,6 @@ export default class HelloScene extends Phaser.Scene {
         const centerY = height * 0.5;
 
         // Hide the default cursor
-        
 
         // Play background music
         this.backgroundMusic = this.sound.add("medieval-music", {
@@ -82,7 +82,6 @@ export default class HelloScene extends Phaser.Scene {
             loop: true,
         });
         this.backgroundMusic.play();
-        
 
         // Create medieval village background
         this.add.image(centerX, centerY, "village-bg").setScale(1.2);
@@ -93,7 +92,6 @@ export default class HelloScene extends Phaser.Scene {
         this.foreground.setDepth(0.9); // Ensure it's above the player
 
         // Add buildings to the village
-
 
         // Create player (villager)
         this.player = this.physics.add.sprite(
@@ -108,7 +106,11 @@ export default class HelloScene extends Phaser.Scene {
         const playerHeight = this.player.height * 0.8; // Account for scale
         const collisionHeight = playerHeight * 0.5; // 60% of sprite height
         const collisionOffset = (playerHeight - collisionHeight) / 2; // Center the collision box
-        this.player.body.setSize(this.player.width * 0.8, collisionHeight, false);
+        this.player.body.setSize(
+            this.player.width * 0.8,
+            collisionHeight,
+            false
+        );
         this.player.body.setOffset(0, collisionOffset);
 
         // Create wizard NPC
@@ -135,49 +137,121 @@ export default class HelloScene extends Phaser.Scene {
             this.add.rectangle(centerX, centerY - 200, 1500, 200, 0x000000, 0)
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 535, centerY - 100, 10, 200, 0x000000, 0)
+            this.add.rectangle(
+                centerX + 535,
+                centerY - 100,
+                10,
+                200,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 600, centerY - 100, 50, 200, 0x000000, 0)
+            this.add.rectangle(
+                centerX + 600,
+                centerY - 100,
+                50,
+                200,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX - 830 , centerY + 200, 750, 280, 0x000000, 0)
+            this.add.rectangle(
+                centerX - 830,
+                centerY + 200,
+                750,
+                280,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX - 250 , centerY + 200, 280, 280, 0x000000, 0)
+            this.add.rectangle(
+                centerX - 250,
+                centerY + 200,
+                280,
+                280,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX - 450 , centerY + 350, 750, 100, 0x000000, 0)
+            this.add.rectangle(
+                centerX - 450,
+                centerY + 350,
+                750,
+                100,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 850 , centerY + 200, 750, 280, 0x000000, 0)
+            this.add.rectangle(
+                centerX + 850,
+                centerY + 200,
+                750,
+                280,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 200 , centerY + 350, 250, 100, 0x000000, 0)
+            this.add.rectangle(
+                centerX + 200,
+                centerY + 350,
+                250,
+                100,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 570 , centerY + 350, 250, 100, 0x000000, 0)
+            this.add.rectangle(
+                centerX + 570,
+                centerY + 350,
+                250,
+                100,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 250 , centerY + 170, 50, 100, 0x000000, 0)
+            this.add.rectangle(
+                centerX + 250,
+                centerY + 170,
+                50,
+                100,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 150 , centerY + 190, 50, 70, 0x000000, 0)
+            this.add.rectangle(
+                centerX + 150,
+                centerY + 190,
+                50,
+                70,
+                0x000000,
+                0
+            )
         );
         this.obstacles.add(
-            this.add.rectangle(centerX + 220 , centerY + 100, 150, 20, 0x000000, 0)
+            this.add.rectangle(
+                centerX + 220,
+                centerY + 100,
+                150,
+                20,
+                0x000000,
+                0
+            )
         );
-        
-        
-        
+
         // Add collision detection
         this.physics.add.collider(this.player, this.obstacles);
         this.physics.add.collider(this.player, this.wizard);
 
-
- 
         // Add trees as obstacles
-        
 
         // Add overlap detection for wizard interaction zone
         this.physics.add.overlap(
@@ -187,7 +261,7 @@ export default class HelloScene extends Phaser.Scene {
             undefined,
             this
         );
-    
+
         // Input handling
         this.cursors = this.input.keyboard?.createCursorKeys();
         if (this.input.keyboard) {
@@ -201,13 +275,16 @@ export default class HelloScene extends Phaser.Scene {
 
         // After loading sounds
         this.scrollOpenSound = this.sound.add("scrollOpen");
-        
         // Create quest icon in top right
-        this.questIcon = this.add.image(width - 40, height - 640, "mini-scroll");
+        this.questIcon = this.add.image(
+            width - 40,
+            height - 640,
+            "mini-scroll"
+        );
         this.questIcon.setScale(0.1);
         this.questIcon.setInteractive({ useHandCursor: true });
         this.questIcon.setDepth(1.1);
-        
+
         // Add a pulsing effect to make it more noticeable
         this.tweens.add({
             targets: this.questIcon,
@@ -215,21 +292,20 @@ export default class HelloScene extends Phaser.Scene {
             duration: 1000,
             yoyo: true,
             repeat: -1,
-            ease: 'Sine.easeInOut'
+            ease: "Sine.easeInOut",
         });
 
         // Create quest dialog (initially hidden)
         this.createQuestDialog();
-        
+
         // Add click handler for quest icon
-        this.questIcon.on('pointerdown', () => {
+        this.questIcon.on("pointerdown", () => {
             if (!this.isQuestDialogOpen) {
                 this.openQuestDialog();
             }
         });
     }
 
-  
     private handleWizardProximity() {
         if (!this.isNearWizard) {
             this.isNearWizard = true;
@@ -262,7 +338,7 @@ export default class HelloScene extends Phaser.Scene {
         const background = this.add.image(0, 0, "scroll");
         background.setScale(1.5);
         background.setOrigin(0.5);
-        
+
         this.chatDialog.add(background);
 
         // Add title
@@ -401,10 +477,9 @@ export default class HelloScene extends Phaser.Scene {
 
         // Add initial messages
         this.addWizardMessage(
-            "Greetings, young villager! I am the wizard of this humble village. What knowledge do you seek?",
+            "Greetings! I am Niloy the Wizard, what knowledge do you seek?",
             "Wizard"
         );
-        
     }
 
     private scrollMessages(deltaY: number) {
@@ -434,7 +509,6 @@ export default class HelloScene extends Phaser.Scene {
 
         // Disable player movement
         this.isInputMode = true;
-        
 
         // Remove interaction prompt
         const prompt = this.children.getByName("interactionPrompt");
@@ -453,10 +527,12 @@ export default class HelloScene extends Phaser.Scene {
         this.scrollToBottom();
 
         // Play scroll open sound
-         this.scrollOpenSound.play();
+        this.scrollOpenSound.play();
 
         // Complete the "Talk to the Wizard" quest if it's the first time
-        const wizardQuest = this.quests.find(q => q.title === "Talk to the Wizard");
+        const wizardQuest = this.quests.find(
+            (q) => q.title === "Talk to the Wizard"
+        );
         if (wizardQuest && !wizardQuest.completed) {
             this.completeQuest("Talk to the Wizard");
         }
@@ -515,7 +591,6 @@ export default class HelloScene extends Phaser.Scene {
 
         // Remove keyboard listener
         this.input.keyboard?.off("keydown", this.handleDialogKeydown, this);
-        
     }
 
     private handleDialogKeydown(event: KeyboardEvent) {
@@ -531,6 +606,26 @@ export default class HelloScene extends Phaser.Scene {
                 this.dialogInputText = this.dialogInputText.slice(0, -1);
                 this.updateInputDisplay();
             }
+        } else if (event.ctrlKey && event.key === "v") {
+            // Handle paste (Ctrl+V)
+            navigator.clipboard
+                .readText()
+                .then((text) => {
+                    this.dialogInputText += text;
+                    this.updateInputDisplay();
+                })
+                .catch((err) => {
+                    console.error("Failed to read clipboard: ", err);
+                });
+        } else if (event.ctrlKey && event.key === "c") {
+            // Handle copy (Ctrl+C)
+            if (this.dialogInputText.length > 0) {
+                navigator.clipboard
+                    .writeText(this.dialogInputText)
+                    .catch((err) => {
+                        console.error("Failed to copy text: ", err);
+                    });
+            }
         } else if (event.key.length === 1) {
             // Add character to input (limited to printable characters)
             this.dialogInputText += event.key;
@@ -542,7 +637,6 @@ export default class HelloScene extends Phaser.Scene {
         const message = this.dialogInputText;
 
         if (message.trim() === "") return;
-        
 
         // Add player message
         this.addWizardMessage(message, "Villager");
@@ -550,6 +644,13 @@ export default class HelloScene extends Phaser.Scene {
         // Clear input
         this.dialogInputText = "";
         this.updateInputDisplay();
+
+        // Get or create session ID
+        let sessionId = localStorage.getItem("sessionId");
+        if (!sessionId) {
+            sessionId = this.generateUUID();
+            localStorage.setItem("sessionId", sessionId);
+        }
 
         // Send message to backend
         try {
@@ -560,7 +661,7 @@ export default class HelloScene extends Phaser.Scene {
                 },
                 body: JSON.stringify({
                     message: message,
-                    session_id: "default",
+                    session_id: sessionId,
                 }),
             });
             const json = await resp.json();
@@ -572,10 +673,20 @@ export default class HelloScene extends Phaser.Scene {
                 "Wizard"
             );
         }
-        
 
         // Play message sent sound
-      
+    }
+
+    // Generate a UUID v4
+    private generateUUID(): string {
+        return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(
+            /[xy]/g,
+            function (c) {
+                const r = (Math.random() * 16) | 0;
+                const v = c === "x" ? r : (r & 0x3) | 0x8;
+                return v.toString(16);
+            }
+        );
     }
 
     private addWizardMessage(text: string, sender: string) {
@@ -600,7 +711,7 @@ export default class HelloScene extends Phaser.Scene {
                 ? -this.messagesArea.width / 2 + 20
                 : this.messagesArea.width / 2 - 20;
             const bgColor = isWizard ? 0x5d4037 : 0x795548;
-            const textColor = isWizard ? "#e6ccff" : "#ffffff";
+            const textColor = isWizard ? "#d07eed" : "#ffffff";
 
             // Create message text first so we can measure its height
             const msgText = this.add.text(xPos, yPos, message.text, {
@@ -646,7 +757,7 @@ export default class HelloScene extends Phaser.Scene {
 
     private createQuestDialog() {
         const { width, height } = this.scale;
-        
+
         // Create container for quest dialog
         this.questDialog = this.add.container(width / 2, height / 2);
         this.questDialog.setVisible(false);
@@ -658,11 +769,16 @@ export default class HelloScene extends Phaser.Scene {
         this.questDialog.add(background);
 
         // Add title
-        const title = this.add.text(0, -background.displayHeight / 2 + 40, "Quests", {
-            fontSize: "32px",
-            color: "#4a2511",
-            fontStyle: "bold"
-        });
+        const title = this.add.text(
+            0,
+            -background.displayHeight / 2 + 40,
+            "Quests",
+            {
+                fontSize: "32px",
+                color: "#4a2511",
+                fontStyle: "bold",
+            }
+        );
         title.setOrigin(0.5);
         this.questDialog.add(title);
 
@@ -682,19 +798,29 @@ export default class HelloScene extends Phaser.Scene {
         let yPos = -background.displayHeight / 3;
         this.quests.forEach((quest, index) => {
             // Quest title
-            const questTitle = this.add.text(-background.displayWidth / 3, yPos, quest.title, {
-                fontSize: "20px",
-                color: "#4a2511",
-                fontStyle: "bold"
-            });
+            const questTitle = this.add.text(
+                -background.displayWidth / 3,
+                yPos,
+                quest.title,
+                {
+                    fontSize: "20px",
+                    color: "#4a2511",
+                    fontStyle: "bold",
+                }
+            );
             this.questDialog.add(questTitle);
 
             // Quest description
-            const questDesc = this.add.text(-background.displayWidth / 3, yPos + 25, quest.description, {
-                fontSize: "16px",
-                color: "#4a2511",
-                wordWrap: { width: background.displayWidth * 0.6 }
-            });
+            const questDesc = this.add.text(
+                -background.displayWidth / 3,
+                yPos + 25,
+                quest.description,
+                {
+                    fontSize: "16px",
+                    color: "#4a2511",
+                    wordWrap: { width: background.displayWidth * 0.6 },
+                }
+            );
             this.questDialog.add(questDesc);
 
             // Quest status
@@ -704,7 +830,7 @@ export default class HelloScene extends Phaser.Scene {
                 quest.completed ? "✓" : "○",
                 {
                     fontSize: "24px",
-                    color: quest.completed ? "#006400" : "#4a2511"
+                    color: quest.completed ? "#006400" : "#4a2511",
                 }
             );
             status.setOrigin(0.5);
@@ -728,7 +854,7 @@ export default class HelloScene extends Phaser.Scene {
     }
 
     private completeQuest(questTitle: string) {
-        const quest = this.quests.find(q => q.title === questTitle);
+        const quest = this.quests.find((q) => q.title === questTitle);
         if (quest) {
             quest.completed = true;
             // Refresh the quest dialog if it's open
@@ -745,7 +871,6 @@ export default class HelloScene extends Phaser.Scene {
         this.player.setVelocity(0);
 
         // Update custom cursor position
-        
 
         // Check for wizard interaction
         if (
@@ -756,9 +881,6 @@ export default class HelloScene extends Phaser.Scene {
         ) {
             this.openChatDialog();
         }
-
-       
-
 
         // Update wizard interaction state
         if (this.isNearWizard) {
