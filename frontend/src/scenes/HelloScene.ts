@@ -593,6 +593,11 @@ export default class HelloScene extends Phaser.Scene {
         this.input.keyboard?.off("keydown", this.handleDialogKeydown, this);
     }
 
+    private handleCloseQuestDialog(event: KeyboardEvent) {
+        if (event.key === "Escape") {
+            this.closeQuestDialog();
+        }
+    }
     private handleDialogKeydown(event: KeyboardEvent) {
         if (!this.isChatDialogOpen) return;
 
@@ -793,6 +798,7 @@ export default class HelloScene extends Phaser.Scene {
         closeButton.setInteractive({ useHandCursor: true });
         closeButton.on("pointerdown", () => this.closeQuestDialog());
         this.questDialog.add(closeButton);
+        this.input.keyboard?.on("keydown", this.handleCloseQuestDialog, this);
 
         // Add quests list
         let yPos = -background.displayHeight / 3;
