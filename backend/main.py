@@ -7,8 +7,8 @@ from moralis_api import get_wallet_information
 from venice import generate_character_traits, remove_background, generate_image_prompt, generate_character_image
 from supabase_api import upload_image
 import time, torch, os, random, logging
-from imgurpython import ImgurClient
 from dotenv import load_dotenv
+import replicate
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -29,48 +29,14 @@ if os.path.isfile('.env'):
 elif os.path.isfile('../.env'):
     load_dotenv('../.env')
 
-# Get API keys
-IMGUR_CLIENT_ID = os.environ.get("IMGUR_CLIENT_ID")
-IMGUR_CLIENT_SECRET = os.environ.get("IMGUR_CLIENT_SECRET")
+REPLICATE_KEY = os.environ.get("REPLICATE_API_KEY") 
 
-# Initialize Imgur client
-# imgur_client = ImgurClient(IMGUR_CLIENT_ID, IMGUR_CLIENT_SECRET)
-
-# Model Configuration
-FLOCK_MODEL_NAME = "flock-io/Flock_Web3_Agent_Model"  # Specialized Web3 model
-
-# Choose which model to use (TINY_MODEL_NAME is active, FLOCK_MODEL_NAME is commented out)
-ACTIVE_MODEL = FLOCK_MODEL_NAME  # Uncomment to use Flock Web3 Agent Model
 IS_USE_MODEL = os.environ.get("USE_MODEL") == "True"
 print ("====================")
 print ("Model Configuration")
 print(f"Model enabled: {IS_USE_MODEL}")
-print(f"Active model: {ACTIVE_MODEL}")
 print ("====================")
 
-
-# Load model and tokenizer
-try:
-    if IS_USE_MODEL:
-        start = time.time()
-        model = AutoModelForCausalLM.from_pretrained(
-            ACTIVE_MODEL,
-            device_map="auto",
-            # Force full model load (disable disk offloading)
-            offload_folder=None,
-            offload_state_dict=False,
-            
-            # Reduce memory usage
-            # low_cpu_mem_usage=True, # Increases time by 50%
-            torch_dtype=torch.float16,  # FP16 even on CPU
-            
-            # For Flock model specific settings (when using it)
-            # trust_remote_code=True,  # Uncomment if needed for Flock model
-        )
-        print(f"Model {ACTIVE_MODEL} loaded in {time.time()-start:.2f}s")
-        tokenizer = AutoTokenizer.from_pretrained(ACTIVE_MODEL)
-except Exception as e:
-    raise RuntimeError(f"Failed to load model: {str(e)}")
 
 class ChatRequest(BaseModel):
     message: str
@@ -99,39 +65,21 @@ async def chat_endpoint(request: ChatRequest):
             ]
             response = random.choice(random_responses)
             return {"response": response}
-        # Create chat template
-        messages = [
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": request.message}
-        ]
-        
-        # Generate prompt using chat template
-        text = tokenizer.apply_chat_template(
-            messages,
-            tokenize=False,
-            add_generation_prompt=True
+        print("query: ", request.message)
+        logger.info(f"Query: {request.message}")
+        query = "Context: You are a Wizard NPC in a Gamified Web3 Educational game called Aetheria. You should be informative and simple while making responses short and text based. NO JSON. \n" + request.message
+        output = replicate.run(
+            "vatsalkshah/flock-web3-foundation-model:3babfa32ab245cf8e047ff7366bcb4d5a2b4f0f108f504c47d5a84e23c02ff5f",
+            input={
+                "top_p": 0.9,
+                "temperature": 0.7,
+                "max_new_tokens": 2000,
+                "query": query,
+                "tools": "[]",
+            }
         )
-    
-        # Tokenize input 
-        model_inputs = tokenizer(text, return_tensors="pt").to(model.device)
-        
-        # Generate response
-        generated_ids = model.generate(
-            **model_inputs,
-            do_sample=True
-        )
-
-        # Extract only the generated part (removing the input prompt)
-        generated_ids = [
-            output_ids[len(input_ids):] for input_ids, output_ids in zip(model_inputs.input_ids, generated_ids)
-        ]
-    
-        
-        # Decode the response
-        response = tokenizer.batch_decode(generated_ids, skip_special_tokens=True)[0]
-        
-        return {"response": response}
-    
+        logger.info(f"API Output: {output}")
+        return {"response": output}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
