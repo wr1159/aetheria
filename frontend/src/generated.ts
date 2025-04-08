@@ -381,8 +381,9 @@ export const aetheriaAvatarAbi = [
  *
  */
 export const aetheriaAvatarAddress = {
-  31337: '0x5FbDB2315678afecb367f032d93F642f64180aa3',
-} as const
+    31337: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+    656476: "0x478E6ebb4D015Aa9bf4063b4D499Ad1db58483B4",
+} as const;
 
 /**
  *
