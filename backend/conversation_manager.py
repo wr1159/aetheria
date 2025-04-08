@@ -17,9 +17,9 @@ supabase: Client = create_client(supabase_url, supabase_key)
 
 # Define blockchain concepts for tracking
 BLOCKCHAIN_CONCEPTS = [
-    "blockchain", "wallets", "smart_contracts", "decentralization", 
-    "gas", "DAOs", "NFTs", "tokens", "mining", "consensus", 
-    "private_keys", "public_keys", "transactions", "blocks"
+    "blockchain", "wallet", "smart contract", "decentralisation", 
+    "gas", "DAO", "NFT", "token", "mining", "consensus", 
+    "private key", "public key", "transaction", "block"
 ]
 
 class ConversationManager:
