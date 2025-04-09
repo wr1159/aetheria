@@ -7,6 +7,7 @@ from moralis_api import get_wallet_information
 from venice import generate_character_traits, remove_background, generate_image_prompt, generate_character_image
 from supabase_api import upload_image
 from conversation_manager import ConversationManager
+from rag_manager import RAGManager
 import time, torch, os, random, logging
 from dotenv import load_dotenv
 import replicate
@@ -41,9 +42,13 @@ print ("====================")
 # Initialize conversation manager
 conversation_manager = ConversationManager(max_history_turns=5)
 
+# Initialize RAG manager
+rag_manager = RAGManager(max_results=3)
+
 class ChatRequest(BaseModel):
     message: str
     session_id: str = "default"
+    wallet_address: str = None
 
 class AddressRequest(BaseModel):
     address: str
@@ -82,10 +87,42 @@ async def chat_endpoint(request: ChatRequest):
         formatted_history = conversation_manager.format_conversation_history(history)
         formatted_concepts = conversation_manager.format_learned_concepts(learned_concepts)
 
+        # Classify user intent and get appropriate action
+        intent_type, action_data = rag_manager.classify_user_intent(request.message)
+        
+        # Initialize knowledge and tool results
+        knowledge_text = ""
+        tool_results_text = ""
+        
+        # Handle different intents
+        if intent_type == "rag":
+            # Search knowledge base for relevant information
+            knowledge = await rag_manager.search_knowledge_base(action_data["query"])
+            knowledge_text = rag_manager.format_knowledge_for_prompt(knowledge)
+            logger.info(f"RAG search results: {len(knowledge)} items found")
+        
+        elif intent_type == "tool_call":
+            # Execute tool calls
+            tool_results = []
+            for tool in action_data["tools"]:
+                # Replace placeholder with actual wallet address if provided
+                if "address" in tool["parameters"] and tool["parameters"]["address"] == "USER_ADDRESS":
+                    if request.wallet_address:
+                        tool["parameters"]["address"] = request.wallet_address
+                
+                result = await rag_manager.execute_tool_call(tool)
+                tool_results.append(result)
+            
+            # Format tool results for the prompt
+            for result in tool_results:
+                tool_results_text += rag_manager.format_tool_result_for_prompt(result) + "\n"
+            logger.info(f"Tool call results: {len(tool_results)} tools executed")
+
         logger.info(f"Query: {request.message}")
         logger.info(f"Learned concepts: {formatted_concepts}")
         logger.info(f"History: {formatted_history}")
         logger.info(f"Detected concepts: {detected_concepts}")
+        logger.info(f"Intent type: {intent_type}")
         
         query = f"""You are Niloy, the wise and ancient wizard of Aetheria — a mystical land where blockchain knowledge is discovered through quests and adventure. You are a kind, patient, and knowledgeable guide who helps players understand both the world and the magic that powers it: the blockchain. You speak in a mystical, old-world tone, but you always explain things clearly and simply, as if speaking to a curious beginner.
 
@@ -95,6 +132,10 @@ async def chat_endpoint(request: ChatRequest):
 
             Previous conversation:
             {formatted_history}
+
+            {knowledge_text}
+
+            {tool_results_text}
 
             Constraints and Style Guide:
             - Always prioritize responding directly to the player's question or statement first.
@@ -123,8 +164,7 @@ async def chat_endpoint(request: ChatRequest):
 
             Now respond to this message:
             User: {request.message}
-            Niloy:
-
+            Niloy: 
 """
 
         output = replicate.run(
