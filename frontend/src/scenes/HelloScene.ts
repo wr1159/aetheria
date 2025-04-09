@@ -676,7 +676,7 @@ export default class HelloScene extends Phaser.Scene {
 
         // Send message to backend
         try {
-            const resp = await fetch("http://localhost:8001/chat", {
+            const resp = await fetch("http://localhost:8080/chat", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

@@ -23,7 +23,7 @@ const MintPage: React.FC = () => {
         localStorage.setItem("walletAddress", address);
         setMintInitiated(true); // Indicate minting process has started
         // Call backend API to generate the avatar
-        const resp = await fetch("http://localhost:8001/generate_avatar", {
+        const resp = await fetch("http://localhost:8080/generate_avatar", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
