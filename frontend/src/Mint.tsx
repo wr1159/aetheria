@@ -188,7 +188,7 @@ const MintPage: React.FC = () => {
                     </button>
                 </div>
                 <a
-                    href="/app"
+                    href="/app/"
                     className={`pixel-button p-2 ${isSuccess ? "selected" : ""}`}
                 >
                     {isSuccess

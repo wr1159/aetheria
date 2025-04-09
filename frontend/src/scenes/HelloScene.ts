@@ -63,24 +63,24 @@ export default class HelloScene extends Phaser.Scene {
 
     preload() {
         // Load medieval assets
-        this.load.image("village-bg", "assets/images/village-bg.png");
+        this.load.image("village-bg", "/assets/images/village-bg.png");
         const avatarImageUrl = localStorage.getItem("avatarImageUrl");
         this.load.image(
             "villager",
-            avatarImageUrl || "assets/images/knight.png"
+            avatarImageUrl || "/assets/images/knight.png"
         );
-        this.load.image("wizard", "assets/images/wizardnpc.png");
+        this.load.image("wizard", "/assets/images/wizardnpc.png");
 
-        this.load.image("scroll", "assets/images/scroll.png");
-        this.load.image("cursor", "assets/images/cursor.png"); // Load cursor image
-        this.load.image("foreground", "assets/images/foreground.png"); // Load foreground image
-        this.load.image("mini-scroll", "assets/images/quest-scroll.png");
+        this.load.image("scroll", "/assets/images/scroll.png");
+        this.load.image("cursor", "/assets/images/cursor.png"); // Load cursor image
+        this.load.image("foreground", "/assets/images/foreground.png"); // Load foreground image
+        this.load.image("mini-scroll", "/assets/images/quest-scroll.png");
 
         // Load background music
-        this.load.audio("medieval-music", "assets/audio/medieval-music.mp3");
+        this.load.audio("medieval-music", "/assets/audio/medieval-music.mp3");
 
         // Load sound effects
-        this.load.audio("scrollOpen", "assets/audio/scroll-open.wav");
+        this.load.audio("scrollOpen", "/assets/audio/scroll-open.wav");
     }
 
     create() {
