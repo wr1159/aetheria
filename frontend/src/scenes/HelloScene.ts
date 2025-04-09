@@ -64,8 +64,8 @@ export default class HelloScene extends Phaser.Scene {
     preload() {
         // Load medieval assets
         this.load.image("village-bg", "assets/images/village-bg.png");
-        this.load.image("villager", "assets/images/wizardnpc.png");
-        this.load.image("wizard", "assets/images/wizard.png");
+        this.load.image("villager", "assets/images/knight.png");
+        this.load.image("wizard", "assets/images/wizardnpc.png");
 
         this.load.image("scroll", "assets/images/scroll.png");
         this.load.image("cursor", "assets/images/cursor.png"); // Load cursor image
