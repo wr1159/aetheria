@@ -138,7 +138,7 @@ def generate_character_traits(wallet_info, gender):
     # Determine age category
     if wallet_age < 0.5:
         age_category = "young"
-    elif wallet_age > 4:
+    elif wallet_age > 5:
         age_category = "elderly"
     else:
         age_category = "adult"
