@@ -8,7 +8,7 @@ from venice import generate_character_traits, remove_background, generate_image_
 from supabase_api import upload_image
 from conversation_manager import ConversationManager
 from rag_manager import RAGManager
-import time, torch, os, random, logging
+import os, random, logging
 from dotenv import load_dotenv
 import replicate
 
@@ -88,7 +88,10 @@ async def chat_endpoint(request: ChatRequest):
         formatted_concepts = conversation_manager.format_learned_concepts(learned_concepts)
 
         # Classify user intent and get appropriate action
-        intent_type, action_data = rag_manager.classify_user_intent(request.message)
+        intent_type, action_data = await rag_manager.classify_user_intent(
+            request.message, 
+            request.wallet_address
+        )
         
         # Initialize knowledge and tool results
         knowledge_text = ""
@@ -105,20 +108,21 @@ async def chat_endpoint(request: ChatRequest):
             # Execute tool calls
             tool_results = []
             for tool in action_data["tools"]:
-                # Replace placeholder with actual wallet address if provided
-                if "address" in tool["parameters"] and tool["parameters"]["address"] == "USER_ADDRESS":
-                    if request.wallet_address:
-                        tool["parameters"]["address"] = request.wallet_address
-                
+                # Log the tool and its parameters
+                logger.info(f"Executing tool: {tool['name']} with parameters: {tool['parameters']}")
                 result = await rag_manager.execute_tool_call(tool)
                 tool_results.append(result)
             
             # Format tool results for the prompt
             for result in tool_results:
-                tool_results_text += rag_manager.format_tool_result_for_prompt(result) + "\n"
+                formatted_result = rag_manager.format_tool_result_for_prompt(result)
+                tool_results_text += formatted_result + "\n"
+                logger.info(f"Tool result: {formatted_result[:100]}...")
+            
             logger.info(f"Tool call results: {len(tool_results)} tools executed")
 
         logger.info(f"Query: {request.message}")
+        logger.info(f"Wallet address: {request.wallet_address}")
         logger.info(f"Learned concepts: {formatted_concepts}")
         logger.info(f"History: {formatted_history}")
         logger.info(f"Detected concepts: {detected_concepts}")
@@ -145,7 +149,7 @@ async def chat_endpoint(request: ChatRequest):
             - Use vivid fantasy RPG metaphors to explain technical ideas. (e.g., "A wallet is like a soulbound crystal.")
             - Avoid unexplained technical terms — always simplify or use analogy.
             - Stay fully in character. You are not a chatbot; you are Niloy.
-            - Never use programming language (no code, JSON, arrays, or syntax).
+            - Never use programming language (no code, JSON, arrays, or syntax). Never put anything in square brackets.
             - Speak in English with warmth and clarity, and a mystical tone. Never use any other languages.
             - Encourage curiosity. End with a question, gentle riddle, or prompt for further exploration.
             - Reference previously learned concepts when relevant to build upon user knowledge.
@@ -192,6 +196,7 @@ async def chat_endpoint(request: ChatRequest):
         logger.info(f"API Output: {output}")
         return {"response": output}
     except Exception as e:
+        logger.error(f"Error in chat endpoint: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/wallet_analysis")
