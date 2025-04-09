@@ -187,6 +187,14 @@ const MintPage: React.FC = () => {
                         </motion.div>
                     </button>
                 </div>
+                <a
+                    href="/app"
+                    className={`pixel-button p-2 ${isSuccess ? "selected" : ""}`}
+                >
+                    {isSuccess
+                        ? "Enter Aetheria"
+                        : "Skip Mint and Try Aetheria"}
+                </a>
             </div>
         </div>
     );
