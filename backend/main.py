@@ -15,7 +15,7 @@ import replicate
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 app = FastAPI()
-origins = ["*"]
+origins = ["https://tryaetheria.xyz", "http://localhost:5173", "https://aetheria-two.vercel.app"]
 
 app.add_middleware(
     CORSMiddleware,

@@ -23,16 +23,20 @@ const MintPage: React.FC = () => {
         localStorage.setItem("walletAddress", address);
         setMintInitiated(true); // Indicate minting process has started
         // Call backend API to generate the avatar
-        const resp = await fetch("http://localhost:8080/generate_avatar", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                address: address,
-                sex: selectedGender,
-            }),
-        });
+        // const resp = await fetch("http://localhost:8080/generate_avatar", {
+        const resp = await fetch(
+            "https://aetheria.onrender.com/generate_avatar",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    address: address,
+                    sex: selectedGender,
+                }),
+            }
+        );
         const data = await resp.json();
         const imageUrl = data.image_url;
         if (!imageUrl) {
