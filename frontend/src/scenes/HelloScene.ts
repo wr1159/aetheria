@@ -668,7 +668,7 @@ export default class HelloScene extends Phaser.Scene {
         }
 
         // Get wallet address if it exists in localStorage
-        const walletAddress = localStorage.getItem("walletAddress") || null;
+        const walletAddress = localStorage.getItem("walletAddress");
 
         // Send message to backend
         try {

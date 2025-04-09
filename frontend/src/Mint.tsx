@@ -16,7 +16,11 @@ const MintPage: React.FC = () => {
 
     const handleMint = async () => {
         if (!selectedGender) return;
-        localStorage.set("walletAddress", address);
+        if (!address) {
+            alert("Please connect your wallet first.");
+            return;
+        }
+        localStorage.setItem("walletAddress", address);
         setMintInitiated(true); // Indicate minting process has started
         writeContract({
             address:
