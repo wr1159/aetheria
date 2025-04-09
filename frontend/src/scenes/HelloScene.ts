@@ -667,6 +667,9 @@ export default class HelloScene extends Phaser.Scene {
             localStorage.setItem("sessionId", sessionId);
         }
 
+        // Get wallet address if it exists in localStorage
+        const walletAddress = localStorage.getItem("walletAddress") || null;
+
         // Send message to backend
         try {
             const resp = await fetch("http://localhost:8001/chat", {
@@ -677,6 +680,7 @@ export default class HelloScene extends Phaser.Scene {
                 body: JSON.stringify({
                     message: message,
                     session_id: sessionId,
+                    ...(walletAddress && { wallet_address: walletAddress }),
                 }),
             });
             const json = await resp.json();

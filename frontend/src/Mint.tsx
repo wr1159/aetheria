@@ -1,22 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import ConnectButton from "./components/ConnectButton";
-import { useChainId, useWriteContract } from "wagmi";
+import { useAccount, useChainId, useWriteContract } from "wagmi";
 import { aetheriaAvatarAbi, aetheriaAvatarAddress } from "./generated";
 import "./styles/pixel.css";
 
 const MintPage: React.FC = () => {
-    const [selectedGender, setSelectedGender] = useState<"male" | "female">("male");
+    const [selectedGender, setSelectedGender] = useState<"male" | "female">(
+        "male"
+    );
     const [mintInitiated, setMintInitiated] = useState(false); // Track if minting started
     const chainId = useChainId();
     const { writeContract, isPending, isSuccess, isError } = useWriteContract();
+    const { address } = useAccount();
 
     const handleMint = async () => {
         if (!selectedGender) return;
-
+        localStorage.set("walletAddress", address);
         setMintInitiated(true); // Indicate minting process has started
         writeContract({
-            address: aetheriaAvatarAddress[chainId as keyof typeof aetheriaAvatarAddress],
+            address:
+                aetheriaAvatarAddress[
+                    chainId as keyof typeof aetheriaAvatarAddress
+                ],
             abi: aetheriaAvatarAbi,
             functionName: "mintAvatar",
             args: [selectedGender],
@@ -41,9 +47,9 @@ const MintPage: React.FC = () => {
         <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
             {/* Background Image - Fixed to cover entire viewport */}
             <div className="fixed inset-0 z-0">
-                <img 
-                    src="/assets/images/summoning-bg.png" 
-                    alt="Summoning Background" 
+                <img
+                    src="/assets/images/summoning-bg.png"
+                    alt="Summoning Background"
                     className="w-full h-full object-cover"
                 />
             </div>
@@ -53,7 +59,6 @@ const MintPage: React.FC = () => {
                     <ConnectButton />
                 </div>
                 <div className="rpg-card flex flex-col items-center justify-center max-w-md w-full bg-opacity-90 mx-auto">
-                   
                     <div className="grid grid-cols-2 gap-4 mb-8 w-full">
                         <motion.button
                             className={`pixel-button ${selectedGender === "male" ? "selected" : ""}`}
@@ -81,9 +86,9 @@ const MintPage: React.FC = () => {
                                 className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
                             >
                                 <div className="relative w-full h-full flex items-center justify-center">
-                                    <img 
-                                        src="/assets/images/summoning-animation.gif" 
-                                        alt="Summoning Animation" 
+                                    <img
+                                        src="/assets/images/summoning-animation.gif"
+                                        alt="Summoning Animation"
                                         className="w-full h-full object-cover"
                                     />
                                     <motion.div
@@ -91,7 +96,7 @@ const MintPage: React.FC = () => {
                                         animate={{
                                             x: [0, 800, -800, 0, 800, -800, 0],
                                             y: [0, -250, 250, 0, -250, 250, 0],
-                                            rotate: [0,360]
+                                            rotate: [0, 360],
                                         }}
                                         transition={{
                                             x: {
@@ -117,14 +122,14 @@ const MintPage: React.FC = () => {
                                             fontFamily: "'Freddy', monospace",
                                         }}
                                     >
-                                        SUMMONING AVATAR ... 
+                                        SUMMONING AVATAR ...
                                     </motion.div>
                                 </div>
                             </motion.div>
                         )}
                     </AnimatePresence>
 
-                    <button 
+                    <button
                         className="relative w-64"
                         onClick={handleMint}
                         disabled={disableButton || !selectedGender} // Disable if pending or no gender selected
@@ -147,9 +152,9 @@ const MintPage: React.FC = () => {
                                 },
                             }}
                         >
-                            <img 
-                                src="/assets/images/summon-button.png" 
-                                alt="Summon Character" 
+                            <img
+                                src="/assets/images/summon-button.png"
+                                alt="Summon Character"
                                 className="w-64 object-contain"
                             />
                         </motion.div>
