@@ -22,6 +22,25 @@ const MintPage: React.FC = () => {
         }
         localStorage.setItem("walletAddress", address);
         setMintInitiated(true); // Indicate minting process has started
+        // Call backend API to generate the avatar
+        const resp = await fetch("http://localhost:8001/generate_avatar", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                address: address,
+                sex: selectedGender,
+            }),
+        });
+        const data = await resp.json();
+        const imageUrl = data.image_url;
+        if (!imageUrl) {
+            alert("Failed to generate avatar. Please try again.");
+            setMintInitiated(false);
+            return;
+        }
+        localStorage.setItem("avatarImageUrl", imageUrl);
         writeContract({
             address:
                 aetheriaAvatarAddress[
@@ -29,7 +48,7 @@ const MintPage: React.FC = () => {
                 ],
             abi: aetheriaAvatarAbi,
             functionName: "mintAvatar",
-            args: [selectedGender],
+            args: [imageUrl],
         });
     };
 
