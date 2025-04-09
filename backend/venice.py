@@ -103,6 +103,7 @@ def generate_character_traits(wallet_info, gender):
     # Get wallet age in days
     wallet_age_str = wallet_info.get('wallet_age', '0 days')
     wallet_age = float(wallet_age_str.split()[0]) if wallet_age_str != 'None' else 0
+
     
     # Get top holdings
     top_holdings = [holding['symbol'] for holding in wallet_info.get('portfolio_holdings', [])]
@@ -136,9 +137,9 @@ def generate_character_traits(wallet_info, gender):
         social_class = "villager"
 
     # Determine age category
-    if wallet_age < 0.5:
+    if wallet_age < 200:
         age_category = "young"
-    elif wallet_age > 5:
+    elif wallet_age > 1825: # 5 years
         age_category = "elderly"
     else:
         age_category = "adult"
