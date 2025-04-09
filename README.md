@@ -1,21 +1,23 @@
-# Vite Phaser Typescript Template
+# Aetheria
 
-Vite + Phaser + Typescript starter template.
+Mint your Personal Avatar based on your wallet activity to embark on a Gamified Blockchain Learning Experience!
+
+Submission for UK AI Agent Hack.
+
+Bounties:
+
+- Venice.ai - Effective Image Generation using Venice API
+- FLock.io - Build the Next Big Retail AI App with FLock AI Arena Models
+- Edu.Chain - AI on EDU Chain: Building the Future of AI-Powered Solutions in Education Onchain
 
 ## Features
 
-- Minting NFT avatar with generated image based on own wallet tx history and analysis.
-- AI NPC behaviour based on wallet history.
-  - AI NPC and Player will have the same NFT avatar. Player can choose to be using the NFT avatar or amongst default avatars
-  - Talk to pre-defined NPC and other player NPCs.
-  - Pre defined NPCs will also be AI.
-- Create maps for different zones based on random top mcap coins ie: "ETH LAND", "SOL LAND". ⬇️⬇️
-
-Predefined NPCs:
-
-- Wizard -> General crypto enquiries.
-- Jailor / Sheriff -> Explore transactions of criminals. Show transactions as a graph (ZachXBT)
-- Witch / Oracle* -> RNG generates random <1m mcap memecoin day (not the same for all players true random).
+- Pixel Art RPG
+- Quests to guide users.
+- Minting NFT avatar on **EduChain** with generated image based on own wallet tx history and analysis (Venice)
+- Wizard NPC who can fetch live data from the blockchain with Moralis and complete your quests (FLock.io)
+- Wizard NPC allows for RAG via Vector embeddings search.
+- Wizard NPC stores previous chat history.
 
 ## TODO
 
@@ -24,33 +26,21 @@ Predefined NPCs:
 - [x] Wallet Analysis with Moralis
 - [x] Generate Image with Venice
 - [x] ERC721
-- [ ] Minting logic - Generate Background Removed Image + Upload to hosting provider + Contract Minting
-- [ ] Add RAG + VectorDB for memory retrieval + more context
-- [ ] Add separation of "personalities" for each NPC
-- [ ] Host Backend
-- [ ] Add Jailor Logic⬇️
+- [X] Minting logic - Generate Background Removed Image + Upload to hosting provider + Contract Minting
+- [X] Add RAG + VectorDB for memory retrieval + more context
+- [X] Host Backend
 
 ### Frontend TODO
 
-- [ ] Add bounding boxes for map
-- [ ] Spawn minted avatars
-- [ ] Separate Chat logic for each NPC
-- [ ] Mint Page Frontend
-- [ ] Add Minigame (dodging)⬇️️
+- [X] Add bounding boxes for map
+- [X] Separate Chat logic for each NPC
+- [X] Mint Page Frontend
 
 ## Preview
 
-![preview.jpg](preview.jpg)
+![preview.png](preview.png)
 
-## Getting Started
-
-```bash
-npx degit iwantantra/vite-phaser-ts my-game
-cd my-game
-npm install
-```
-
-## Available scripts
+## Available scripts (Frontend)
 
 ### To run the project
 
@@ -81,28 +71,3 @@ npm run lint
 ```bash
 npm run lint-fix
 ```
-
-## Project structure
-
-```
-.
-├── dist
-├── node_modules
-├── public
-│    ├── assets
-├── src
-│   ├── scenes
-│       ├── HelloScene.ts
-│   ├── main.ts
-├── index.html
-├── package.json
-```
-
-`dist` your build will placed in this folder.\
-`src` you can structure your codes and folder as you like inside this folder.\
-`public` your static asset must be placed inside this folder. You can also
-create new folder inside this folder.
-
-## License
-
-[MIT License](LICENSE.md)
