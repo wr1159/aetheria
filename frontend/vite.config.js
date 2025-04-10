@@ -12,7 +12,7 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: resolve(__dirname, "index.html"),
-                mint: resolve(__dirname, "mint/index.html"),
+                mint: resolve(__dirname, "app/index.html"),
             },
         },
     },
