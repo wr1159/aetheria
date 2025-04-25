@@ -14,6 +14,15 @@ const MintPage: React.FC = () => {
     const { writeContract, isPending, isSuccess, isError } = useWriteContract();
     const { address } = useAccount();
 
+    useEffect(() => {
+        fetch("https://aetheria.onrender.com/ping", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+    }, []);
+
     const handleMint = async () => {
         if (!selectedGender) return;
         if (!address) {
