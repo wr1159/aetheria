@@ -16,10 +16,7 @@ const MintPage: React.FC = () => {
 
     useEffect(() => {
         fetch("https://aetheria.onrender.com/ping", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
+            method: "GET",
         });
     }, []);
 
